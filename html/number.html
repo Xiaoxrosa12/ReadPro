@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number - An Ebook Reading</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@500&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 428px;
+            height: 926px;
+            background-color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+        }
+
+        /* 标题 */
+        .title {
+            position: absolute;
+            left: 43px;
+            top: 143px;
+            width: 114px;
+            height: 63px;
+            font-family: 'Poppins';
+            font-weight: 600;
+            font-size: 42px;
+            line-height: 1.5em;
+            color: #A88DCB;
+            text-align: center;
+        }
+
+        /* 输入框容器 */
+        .input-container {
+            position: absolute;
+            background-color: #EAEAEA;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            padding: 13px 35px 13px 25px;
+            transition: all 0.3s ease;
+        }
+
+        .input-container:focus-within {
+            background-color: #f0f0f0;
+            box-shadow: 0 0 0 2px rgba(168, 141, 203, 0.3);
+        }
+
+        .number-container {
+            left: 45px;
+            top: 256px;
+            width: 340px;
+            height: 62px;
+        }
+
+        .password-container {
+            left: 45px;
+            top: 348px;
+            width: 340px;
+            height: 62px;
+            gap: 16px;
+        }
+
+        /* 输入框标签 */
+        .input-label {
+            font-family: 'Inter';
+            font-weight: 500;
+            font-size: 18px;
+            line-height: 1.21em;
+            color: #A88DCB;
+            white-space: nowrap;
+        }
+
+        /* 输入框 */
+        .input-field {
+            background-color: rgba(255, 255, 255, 0.55);
+            border: none;
+            border-radius: 10px;
+            padding: 10px;
+            width: 179px;
+            font-family: 'Inter';
+            font-weight: 500;
+            font-size: 13px;
+            line-height: 1.21em;
+            color: rgba(168, 141, 203, 0.4);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-field::placeholder {
+            color: rgba(168, 141, 203, 0.4);
+        }
+
+        .input-field:focus {
+            background-color: rgba(255, 255, 255, 0.8);
+            color: #A88DCB;
+        }
+
+        /* 登录按钮 */
+        .login-button {
+            position: absolute;
+            left: 44px;
+            top: 460px;
+            width: 340px;
+            height: 62px;
+            background-color: #A88DCB;
+            border: none;
+            border-radius: 50px;
+            color: #FFFFFF;
+            font-family: 'Poppins';
+            font-weight: 600;
+            font-size: 18px;
+            line-height: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-button:hover {
+            background-color: #9a7db8;
+            transform: translateY(-2px);
+        }
+
+        .login-button:active {
+            transform: scale(0.98);
+        }
+
+        .login-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 同意条款区域 */
+        .consent-section {
+            position: absolute;
+            left: 44px;
+            top: 563px;
+            width: 340px;
+            height: 81px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .checkbox-container {
+            position: relative;
+            width: 22px;
+            height: 22px;
+            margin-top: 3px;
+        }
+
+        .custom-checkbox {
+            width: 18px;
+            height: 18px;
+            border: 1.2px solid #19191B;
+            border-radius: 50%;
+            background-color: #FFFFFF;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .custom-checkbox.checked {
+            background-color: #A88DCB;
+            border-color: #A88DCB;
+        }
+
+        .custom-checkbox.checked::after {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background-color: #FFFFFF;
+            border-radius: 50%;
+        }
+
+        .consent-text {
+            flex: 1;
+            font-family: 'Poppins';
+            font-weight: 500;
+            font-size: 18px;
+            line-height: 1.5em;
+            color: #9D9D9D;
+        }
+
+        /* 提示信息 */
+        .info-box {
+            position: absolute;
+            left: 34px;
+            top: 825px;
+            width: 340px;
+            padding: 10px;
+            background-color: rgba(157, 157, 157, 0.1);
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .info-text {
+            font-family: 'Poppins';
+            font-weight: 500;
+            font-size: 18px;
+            line-height: 1.5em;
+            color: #9D9D9D;
+        }
+
+        /* 返回按钮 */
+        .back-button {
+            position: absolute;
+            left: 20px;
+            top: 60px;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(168, 141, 203, 0.1);
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: rgba(168, 141, 203, 0.2);
+        }
+
+        .back-arrow {
+            width: 12px;
+            height: 12px;
+            border-left: 2px solid #A88DCB;
+            border-bottom: 2px solid #A88DCB;
+            transform: rotate(45deg);
+        }
+
+        /* 错误提示 */
+        .error-message {
+            position: absolute;
+            left: 44px;
+            top: 540px;
+            color: #ff6b6b;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .error-message.show {
+            opacity: 1;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 428px) {
+            .container {
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+            }
+            
+            .title {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            
+            .input-container,
+            .login-button,
+            .consent-section,
+            .info-box {
+                left: 50%;
+                transform: translateX(-50%);
+                width: calc(100% - 40px);
+            }
+            
+            .input-field {
+                width: calc(100% - 80px);
+                min-width: 120px;
+            }
+            
+            .back-button {
+                left: 20px;
+                top: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 返回按钮 -->
+        <button class="back-button" onclick="goBack()">
+            <div class="back-arrow"></div>
+        </button>
+
+        <!-- 标题 -->
+        <div class="title">Login</div>
+
+        <!-- Number输入框 -->
+        <div class="input-container number-container">
+            <div class="input-label">Number</div>
+            <input type="text" class="input-field" id="numberInput" placeholder="Enter your number">
+        </div>
+
+        <!-- Password输入框 -->
+        <div class="input-container password-container">
+            <div class="input-label">Password</div>
+            <input type="password" class="input-field" id="passwordInput" placeholder="Enter your password">
+        </div>
+
+        <!-- 错误提示 -->
+        <div class="error-message" id="errorMessage">Invalid number or password</div>
+
+        <!-- 登录按钮 -->
+        <button class="login-button" id="loginBtn" onclick="handleLogin()">Login</button>
+
+        <!-- 同意条款 -->
+        <div class="consent-section">
+            <div class="checkbox-container">
+                <div class="custom-checkbox" id="consentCheckbox" onclick="toggleConsent()"></div>
+            </div>
+            <div class="consent-text">
+                I have read the informed consent form and am aware of the experimental procedures.
+            </div>
+        </div>
+
+        <!-- 提示信息 -->
+        <div class="info-box">
+            <div class="info-text">Please obtain the password from the laboratory staff.</div>
+        </div>
+        
+        <!-- 测试按钮 -->
+        <div style="position: absolute; bottom: 20px; left: 20px; z-index: 1000;">
+            <button onclick="testPassword()" style="margin: 5px; padding: 8px; background: #A88DCB; color: white; border: none; border-radius: 5px;">测试密码1:84729</button>
+            <button onclick="testPassword2()" style="margin: 5px; padding: 8px; background: #A88DCB; color: white; border: none; border-radius: 5px;">测试密码2:15634</button>
+            <button onclick="forceReloadDatabase()" style="margin: 5px; padding: 8px; background: #D45555; color: white; border: none; border-radius: 5px;">强制重载数据库</button>
+        </div>
+    </div>
+
+    <script>
+        // 从JSON文件加载密码数据库
+        let passwordDatabase = {};
+        
+        // 页面加载时从JSON文件获取密码数据
+        async function loadPasswordDatabase() {
+            try {
+                console.log('开始加载密码数据库...');
+                
+                // 首先尝试从文件加载
+                try {
+                    const response = await fetch('./passwords.json');
+                    console.log('Fetch响应状态:', response.status, response.ok);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('JSON解析结果:', data);
+                        
+                        passwordDatabase = data;
+                        console.log('Password database loaded successfully:', passwordDatabase);
+                        console.log('Available numbers:', Object.keys(passwordDatabase));
+                        console.log('数据库大小:', Object.keys(passwordDatabase).length);
+                        
+                        // 验证特定数据
+                        console.log('编号1的密码:', passwordDatabase['1']);
+                        console.log('编号2的密码:', passwordDatabase['2']);
+                        
+                        return true;
+                    }
+                } catch (fetchError) {
+                    console.log('Fetch失败，使用内嵌数据:', fetchError.message);
+                }
+                
+                // 如果fetch失败，使用内嵌的密码数据库
+                passwordDatabase = {
+                    "1": "84729",
+                    "2": "15634",
+                    "3": "39271",
+                    "4": "64815",
+                    "5": "93742",
+                    "6": "28476",
+                    "7": "51389",
+                    "8": "76124",
+                    "9": "49583",
+                    "10": "82367",
+                    "11": "14759",
+                    "12": "63528",
+                    "13": "91847",
+                    "14": "25634",
+                    "15": "78491",
+                    "16": "34167",
+                    "17": "59284",
+                    "18": "87613",
+                    "19": "42975",
+                    "20": "16384",
+                    "21": "75829",
+                    "22": "39467",
+                    "23": "68145",
+                    "24": "52793",
+                    "25": "94618",
+                    "26": "37562",
+                    "27": "81439",
+                    "28": "56247",
+                    "29": "19385",
+                    "30": "74816",
+                    "31": "32594",
+                    "32": "67941",
+                    "33": "18457",
+                    "34": "93625",
+                    "35": "47183",
+                    "36": "25964",
+                    "37": "68317",
+                    "38": "41579",
+                    "39": "76234",
+                    "40": "59841",
+                    "41": "23467",
+                    "42": "87159",
+                    "43": "45623",
+                    "44": "91738",
+                    "45": "36485",
+                    "46": "72914",
+                    "47": "58367",
+                    "48": "14296"
+                };
+                
+                console.log('使用内嵌密码数据库:', passwordDatabase);
+                console.log('数据库大小:', Object.keys(passwordDatabase).length);
+                console.log('编号1的密码:', passwordDatabase['1']);
+                console.log('编号2的密码:', passwordDatabase['2']);
+                
+                return true;
+                
+            } catch (error) {
+                console.error('Error loading password database:', error);
+                // 如果加载失败，使用默认密码数据库
+                passwordDatabase = {
+                    '12345': 'password123',
+                    '67890': 'secret456',
+                    '11111': 'test789',
+                    '22222': 'demo000',
+                    '33333': 'admin123'
+                };
+                console.log('Using fallback password database:', passwordDatabase);
+                return false;
+            }
+        }
+
+        let isConsentChecked = false;
+
+        function goBack() {
+            // 返回Login页面
+            window.location.href = 'login.html';
+        }
+
+        function toggleConsent() {
+            const checkbox = document.getElementById('consentCheckbox');
+            isConsentChecked = !isConsentChecked;
+            checkbox.classList.toggle('checked', isConsentChecked);
+            
+            // 更新登录按钮状态
+            updateLoginButtonState();
+        }
+
+        function updateLoginButtonState() {
+            const loginBtn = document.getElementById('loginBtn');
+            const numberInput = document.getElementById('numberInput');
+            const passwordInput = document.getElementById('passwordInput');
+            
+            const hasNumber = numberInput.value.trim() !== '';
+            const hasPassword = passwordInput.value.trim() !== '';
+            
+            loginBtn.disabled = !(hasNumber && hasPassword && isConsentChecked);
+        }
+
+        function handleLogin() {
+            console.log('=== 开始登录流程 ===');
+            
+            const number = document.getElementById('numberInput').value.trim();
+            const password = document.getElementById('passwordInput').value.trim();
+            const errorMessage = document.getElementById('errorMessage');
+            
+            console.log('输入数据:', { number, password });
+            console.log('密码数据库状态:', passwordDatabase);
+            console.log('数据库类型:', typeof passwordDatabase);
+            console.log('数据库键数量:', Object.keys(passwordDatabase).length);
+            
+            // 检查数据库是否已加载
+            if (Object.keys(passwordDatabase).length === 0) {
+                console.log('❌ 密码数据库未加载，尝试重新加载...');
+                showError('Password database not loaded. Please try again.');
+                
+                // 尝试重新加载数据库
+                forceReloadDatabase().then(() => {
+                    console.log('数据库重载完成，请再次尝试登录');
+                });
+                return;
+            }
+            
+            // 验证输入
+            if (!number || !password) {
+                console.log('❌ 输入验证失败: 缺少编号或密码');
+                showError('Please enter both number and password');
+                return;
+            }
+            
+            if (!isConsentChecked) {
+                console.log('❌ 同意条款验证失败');
+                showError('Please agree to the consent form');
+                return;
+            }
+            
+            // 验证密码
+            console.log('🔍 开始密码验证...');
+            console.log('查询编号:', number);
+            console.log('期望密码:', passwordDatabase[number]);
+            console.log('输入密码:', password);
+            console.log('数据类型比较:', typeof passwordDatabase[number], typeof password);
+            console.log('密码匹配结果:', passwordDatabase[number] === password);
+            
+            if (passwordDatabase[number] === password) {
+                // 登录成功，记录用户ID和登录时间
+                console.log('✅ 登录验证成功！');
+                console.log('📝 记录用户ID:', number);
+                
+                localStorage.setItem('currentUserId', number);
+                localStorage.setItem('loginTime', Date.now().toString());
+                localStorage.setItem('userSessionStart', Date.now().toString());
+                
+                hideError();
+                showSuccess('Login successful!');
+                console.log('🔄 准备跳转到home.html...');
+                
+                // 跳转到Home页面
+                setTimeout(() => {
+                    console.log('执行页面跳转...');
+                    window.location.href = 'home.html';
+                }, 1000);
+            } else {
+                // 登录失败
+                console.log('❌ 登录验证失败');
+                console.log('期望密码:', passwordDatabase[number]);
+                console.log('实际密码:', password);
+                showError('Invalid number or password');
+            }
+            
+            console.log('=== 登录流程结束 ===');
+        }
+
+        function showError(message) {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+        }
+
+        function hideError() {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.classList.remove('show');
+        }
+
+        function showSuccess(message) {
+            // 可以添加成功提示的样式
+            console.log(message);
+        }
+
+        // 添加输入框事件监听
+        document.getElementById('numberInput').addEventListener('input', updateLoginButtonState);
+        document.getElementById('passwordInput').addEventListener('input', updateLoginButtonState);
+
+        // 添加回车键登录功能
+        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleLogin();
+            }
+        });
+
+        // 测试函数
+        function testPassword() {
+            document.getElementById('numberInput').value = '1';
+            document.getElementById('passwordInput').value = '84729';
+            isConsentChecked = true;
+            document.getElementById('consentCheckbox').classList.add('checked');
+            updateLoginButtonState();
+            console.log('测试数据已填入，编号: 1, 密码: 84729');
+        }
+        
+        function testPassword2() {
+            document.getElementById('numberInput').value = '2';
+            document.getElementById('passwordInput').value = '15634';
+            isConsentChecked = true;
+            document.getElementById('consentCheckbox').classList.add('checked');
+            updateLoginButtonState();
+            console.log('测试数据已填入，编号: 2, 密码: 15634');
+        }
+        
+        async function forceReloadDatabase() {
+            console.log('强制重载密码数据库...');
+            try {
+                const response = await fetch('./passwords.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                passwordDatabase = data;
+                
+                console.log('✅ 数据库重载成功:', passwordDatabase);
+                console.log('数据库大小:', Object.keys(passwordDatabase).length);
+                console.log('编号1的密码:', passwordDatabase['1']);
+                console.log('编号2的密码:', passwordDatabase['2']);
+                
+                // 显示成功消息
+                alert('密码数据库重载成功！\n编号1: ' + passwordDatabase['1'] + '\n编号2: ' + passwordDatabase['2']);
+                
+            } catch (error) {
+                console.error('❌ 数据库重载失败:', error);
+                alert('数据库重载失败: ' + error.message);
+            }
+        }
+        
+        // 页面加载动画和密码数据库加载
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('DOM加载完成，开始初始化...');
+            
+            try {
+                // 加载密码数据库
+                const dbLoaded = await loadPasswordDatabase();
+                console.log('密码数据库加载状态:', dbLoaded);
+                
+                if (dbLoaded) {
+                    console.log('✅ 密码数据库加载成功，可以进行登录验证');
+                } else {
+                    console.log('⚠️ 使用备用密码数据库');
+                }
+                
+                // 页面加载动画
+                const container = document.querySelector('.container');
+                container.style.opacity = '0';
+                container.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    container.style.transition = 'all 0.6s ease';
+                    container.style.opacity = '1';
+                    container.style.transform = 'translateY(0)';
+                }, 100);
+                
+            } catch (error) {
+                console.error('页面初始化失败:', error);
+            }
+        });
+    </script>
+</body>
+</html>
