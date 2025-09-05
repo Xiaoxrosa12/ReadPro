@@ -1,0 +1,552 @@
+
+        // 页面跳转功能
+        function goBack() {
+            // 记录退出次数
+            recordExit();
+            // 返回Details页面
+            window.location.href = 'details.html';
+        }
+
+
+
+        // 统计功能
+        let startTime = Date.now();
+        let readingTime = 0;
+        let exitCount = 0;
+        let highlightCount = 0;
+        let highlights = [];
+        let totalStrokes = 0; // 总划线次数（包括已删除的）
+        let sessionStartTime = Date.now(); // 会话开始时间
+        let minSessionDuration = 5 * 60 * 1000; // 最小会话时长5分钟（毫秒）
+        let currentUserId = null; // 当前用户ID
+
+        // 清除所有统计数据
+        function clearAllStats() {
+            readingTime = 0;
+            exitCount = 0;
+            highlightCount = 0;
+            totalStrokes = 0;
+            highlights = [];
+            startTime = Date.now();
+            sessionStartTime = Date.now();
+            
+            // 清除localStorage中的数据
+            localStorage.removeItem('readingStats');
+            localStorage.removeItem(`userActions_${currentUserId}`);
+            
+            console.log('📊 所有统计数据已清除');
+        }
+
+        // 记录退出次数（只记录时长超过5分钟的退出）
+        function recordExit() {
+            const currentTime = Date.now();
+            const sessionDuration = currentTime - sessionStartTime;
+            
+            // 只有会话时长超过5分钟才记录退出
+            if (sessionDuration >= minSessionDuration) {
+                exitCount++;
+                
+                // 记录用户退出行为
+                recordUserAction('exit_page');
+                
+                updateStats();
+                saveStats();
+            }
+        }
+
+        // 显示统计弹窗
+        function showStats() {
+            // 检查是否已有overlay页面打开
+            if (document.querySelector('.overlay-background')) {
+                console.log('⚠️ 已有overlay页面打开，无法同时打开统计弹窗');
+                return;
+            }
+            
+            const modal = document.getElementById('statsModal');
+            modal.classList.add('show');
+            
+            // 更新弹窗中的数值
+            document.getElementById('readingHours').textContent = Math.floor(readingTime / 60);
+            document.getElementById('readingMinutes').textContent = readingTime % 60;
+            document.getElementById('exitCount').textContent = exitCount;
+            document.getElementById('highlightCount').textContent = totalStrokes; // 显示总划线次数
+        }
+
+        // 关闭统计弹窗
+        function closeStats() {
+            const modal = document.getElementById('statsModal');
+            modal.classList.remove('show');
+        }
+
+        // 记录用户行为
+        function recordUserAction(action) {
+            if (!currentUserId) return;
+            
+            const actionData = {
+                userId: currentUserId,
+                action: action,
+                timestamp: Date.now(),
+                pageUrl: window.location.href,
+                userAgent: navigator.userAgent
+            };
+            
+            // 保存到localStorage
+            const userActions = JSON.parse(localStorage.getItem(`userActions_${currentUserId}`) || '[]');
+            userActions.push(actionData);
+            localStorage.setItem(`userActions_${currentUserId}`, JSON.stringify(userActions));
+            
+            console.log('📝 记录用户行为:', actionData);
+        }
+
+        // 打开overlay页面
+        function openOverlay() {
+            console.log('📖 打开overlay页面');
+            
+            // 检查是否已有其他遮罩页面打开
+            if (document.querySelector('.stats-modal.show') || document.querySelector('.overlay-background')) {
+                console.log('⚠️ 已有遮罩页面打开，无法同时打开overlay');
+                return;
+            }
+            
+            // 记录用户行为
+            recordUserAction('open_overlay');
+            
+            // 创建overlay元素并添加到当前页面
+            createOverlay();
+        }
+
+        // 创建overlay元素
+        function createOverlay() {
+            // 创建overlay背景
+            const overlayBackground = document.createElement('div');
+            overlayBackground.className = 'overlay-background';
+            overlayBackground.onclick = closeOverlay;
+            
+            // 创建overlay容器
+            const overlayContainer = document.createElement('div');
+            overlayContainer.className = 'overlay-container';
+            overlayContainer.innerHTML = `
+                <!-- 顶部导航栏 -->
+                <div class="top-tab-bar">
+                    <div class="top-nav-content">
+                        <div class="book-info">
+                            <div class="book-title">Oliver Twist</div>
+                            <div class="book-author">Charles Dickens</div>
+                        </div>
+                        <div class="menu-button">
+                            <div class="menu-dot"></div>
+                            <div class="menu-dot"></div>
+                            <div class="menu-dot"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 中间半透明内容区域 -->
+                <div class="content-overlay" onclick="closeOverlay()">
+                    <!-- 这里可以放置具体的内容 -->
+                </div>
+
+                <!-- 底部图标栏 -->
+                <div class="bottom-label-bar">
+                    <div class="bottom-icons">
+                        <!-- 笔记本图标 -->
+                        <div class="icon-item active" onclick="switchIcon(this, 'notebook')">
+                            <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M6.75 2.25C6.75 1.83579 7.08579 1.5 7.5 1.5H22.5C22.9142 1.5 23.25 1.83579 23.25 2.25V27.75C23.25 28.1642 22.9142 28.5 22.5 28.5H7.5C7.08579 28.5 6.75 28.1642 6.75 27.75V2.25Z" fill="#8A8A8A"/>
+                                <path d="M9.75 6.75C9.75 6.33579 10.0858 6 10.5 6H19.5C19.9142 6 20.25 6.33579 20.25 6.75V8.25C20.25 8.66421 19.9142 9 19.5 9H10.5C10.0858 9 9.75 8.66421 9.75 8.25V6.75Z" fill="#8A8A8A"/>
+                            </svg>
+                        </div>
+
+                        <!-- 进度图标 -->
+                        <div class="icon-item" onclick="switchIcon(this, 'processing')">
+                            <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M15 0.75C15 0.335786 15.3358 0 15.75 0C23.5 0 29.75 6.25 29.75 14C29.75 14.4142 29.4142 14.75 29 14.75H15.75C15.3358 14.75 15 14.4142 15 14V0.75Z" fill="#8A8A8A"/>
+                                <path d="M15 15.25C15 14.8358 15.3358 14.5 15.75 14.5H29C29.4142 14.5 29.75 14.8358 29.75 15.25C29.75 23 23.5 29.25 15.75 29.25C15.3358 29.25 15 28.9142 15 28.5V15.25Z" fill="#8A8A8A"/>
+                            </svg>
+                        </div>
+
+                        <!-- 亮度图标 -->
+                        <div class="icon-item" onclick="switchIcon(this, 'light')">
+                            <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M15 0C6.716 0 0 6.716 0 15C0 23.284 6.716 30 15 30C23.284 30 30 23.284 30 15C30 6.716 23.284 0 15 0ZM15 27C8.373 27 3 21.627 3 15C3 8.373 8.373 3 15 3C21.627 3 27 8.373 27 15C27 21.627 21.627 27 15 27Z" fill="#8A8A8A"/>
+                                <path d="M15 6C10.029 6 6 10.029 6 15C6 19.971 10.029 24 15 24C24 19.971 24 10.029 24 15C24 10.029 19.971 6 15 6Z" fill="#8A8A8A"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // 添加到页面
+            document.body.appendChild(overlayBackground);
+            document.body.appendChild(overlayContainer);
+            
+            // 添加动画效果
+            setTimeout(() => {
+                overlayContainer.style.animation = 'slideIn 0.3s ease-out';
+            }, 10);
+        }
+
+        // 关闭overlay
+        function closeOverlay() {
+            const overlayBackground = document.querySelector('.overlay-background');
+            const overlayContainer = document.querySelector('.overlay-container');
+            
+            if (overlayContainer) {
+                overlayContainer.style.animation = 'slideOut 0.3s ease-in forwards';
+                
+                setTimeout(() => {
+                    if (overlayBackground) overlayBackground.remove();
+                    if (overlayContainer) overlayContainer.remove();
+                }, 300);
+            }
+        }
+
+        // 切换图标激活状态
+        function switchIcon(clickedIcon, iconType) {
+            // 移除所有图标的激活状态
+            document.querySelectorAll('.icon-item').forEach(icon => {
+                icon.classList.remove('active');
+            });
+            
+            // 激活被点击的图标
+            clickedIcon.classList.add('active');
+            
+            console.log('切换到图标:', iconType);
+            
+            // 这里可以添加具体的功能逻辑
+            switch(iconType) {
+                case 'notebook':
+                    console.log('显示笔记本功能');
+                    break;
+                case 'processing':
+                    console.log('显示进度功能');
+                    break;
+                case 'light':
+                    console.log('显示亮度调节功能');
+                    break;
+            }
+        }
+
+        // 导出统计数据为JSON
+        function exportStats() {
+            const exportData = {
+                userId: currentUserId || 'unknown',
+                bookTitle: 'Oliver Twist',
+                bookAuthor: 'Charles Dickens',
+                sessionData: {
+                    readingTime: readingTime,
+                    exitCount: exitCount,
+                    totalStrokes: totalStrokes,
+                    currentHighlights: highlightCount,
+                    sessionStartTime: new Date(sessionStartTime).toISOString(),
+                    lastUpdateTime: new Date().toISOString()
+                },
+                highlights: highlights.map(h => ({
+                    text: h.text,
+                    timestamp: new Date(h.timestamp).toISOString()
+                })),
+                userActions: JSON.parse(localStorage.getItem(`userActions_${currentUserId}`) || '[]')
+            };
+            
+            // 创建下载链接
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `user_${currentUserId}_reading_stats_${new Date().toISOString().slice(0, 10)}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+            console.log('统计数据已导出:', exportData);
+        }
+
+        // 更新统计显示
+        function updateStats() {
+            // 统计数据已通过弹窗显示，无需额外更新
+        }
+
+        // 保存统计数据
+        function saveStats() {
+            const stats = {
+                readingTime: readingTime,
+                exitCount: exitCount,
+                highlightCount: highlightCount,
+                totalStrokes: totalStrokes,
+                highlights: highlights.map(h => ({
+                    text: h.text,
+                    timestamp: h.timestamp
+                })),
+                sessionStartTime: sessionStartTime,
+                lastUpdateTime: Date.now()
+            };
+            localStorage.setItem('readingStats', JSON.stringify(stats));
+        }
+
+        // 加载统计数据
+        function loadStats() {
+            const saved = localStorage.getItem('readingStats');
+            if (saved) {
+                const stats = JSON.parse(saved);
+                readingTime = stats.readingTime || 0;
+                exitCount = stats.exitCount || 0;
+                highlightCount = stats.highlightCount || 0;
+                highlights = stats.highlights || [];
+                updateStats();
+            }
+        }
+
+        // 长按划线功能
+        let longPressTimer;
+        let isLongPressing = false;
+        let selectedText = '';
+
+        function handleTextSelection() {
+            const selection = window.getSelection();
+            if (selection.toString().length > 0) {
+                selectedText = selection.toString();
+                showHighlightOptions(selection);
+            }
+        }
+
+        function showHighlightOptions(selection) {
+            // 创建高亮选项
+            const range = selection.getRangeAt(0);
+            const span = document.createElement('span');
+            span.className = 'highlighted';
+            span.textContent = selectedText;
+            span.onclick = function() {
+                toggleHighlight(this);
+            };
+            
+            // 添加取消划线按钮
+            const unhighlightBtn = document.createElement('div');
+            unhighlightBtn.className = 'unhighlight-btn';
+            unhighlightBtn.innerHTML = '<img src="../images/delete.png" alt="取消划线">';
+            unhighlightBtn.onclick = function(e) {
+                e.stopPropagation(); // 阻止事件冒泡
+                unhighlightText(span);
+            };
+            span.appendChild(unhighlightBtn);
+            
+            range.deleteContents();
+            range.insertNode(span);
+            
+            // 记录高亮
+            highlightCount++;
+            totalStrokes++; // 总划线次数+1（包括已删除的）
+            highlights.push({
+                text: selectedText,
+                timestamp: Date.now(),
+                element: span
+            });
+            
+            // 记录用户划线行为
+            recordUserAction('highlight_text');
+            
+            updateStats();
+            saveStats();
+            
+            // 清除选择
+            selection.removeAllRanges();
+        }
+
+        function unhighlightText(element) {
+            // 从高亮列表中移除
+            const index = highlights.findIndex(h => h.element === element);
+            if (index > -1) {
+                highlights.splice(index, 1);
+                highlightCount--;
+                // 注意：totalStrokes不减少，保持总划线次数记录
+                
+                // 记录用户取消划线行为
+                recordUserAction('unhighlight_text');
+                
+                updateStats();
+                saveStats();
+            }
+            
+            // 取消划线：将高亮元素替换为普通文本
+            const textContent = element.textContent;
+            const textNode = document.createTextNode(textContent);
+            element.parentNode.replaceChild(textNode, element);
+        }
+
+        function toggleHighlight(element) {
+            element.classList.toggle('selected');
+        }
+
+        // 阅读时间计时器
+        function updateReadingTime() {
+            const currentTime = Date.now();
+            readingTime = Math.floor((currentTime - startTime) / 1000 / 60); // 转换为分钟
+        }
+
+        // 页面可见性变化处理
+        function handleVisibilityChange() {
+            if (document.hidden) {
+                // 页面隐藏时记录退出
+                recordExit();
+            } else {
+                // 页面显示时重新开始计时
+                startTime = Date.now();
+            }
+        }
+
+        // 顶部导航栏滚动控制
+        let lastScrollTop = 0;
+        let scrollThreshold = 50; // 滚动阈值
+        let isScrolling = false;
+        let scrollTimer;
+
+        function handleScroll() {
+            const readingContent = document.getElementById('readingContent');
+            const topBar = document.getElementById('topBar');
+            
+            if (!readingContent || !topBar) return;
+
+            const scrollTop = readingContent.scrollTop;
+            const scrollDelta = scrollTop - lastScrollTop;
+
+            // 清除之前的定时器
+            clearTimeout(scrollTimer);
+
+            // 向上滚动时显示顶部栏
+            if (scrollDelta < -scrollThreshold) {
+                topBar.classList.remove('hidden');
+                topBar.classList.add('visible');
+            }
+            // 向下滚动时隐藏顶部栏
+            else if (scrollDelta > scrollThreshold) {
+                topBar.classList.remove('visible');
+                topBar.classList.add('hidden');
+            }
+
+            lastScrollTop = scrollTop;
+
+            // 设置定时器，停止滚动后显示顶部栏
+            scrollTimer = setTimeout(() => {
+                topBar.classList.remove('hidden');
+                topBar.classList.add('visible');
+            }, 1000);
+        }
+
+        // 添加滚动事件监听
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取当前用户ID
+            currentUserId = localStorage.getItem('currentUserId');
+            if (!currentUserId) {
+                console.warn('未找到用户ID，重定向到登录页面');
+                window.location.href = 'number.html';
+                return;
+            }
+            
+            console.log('📖 用户开始阅读，用户ID:', currentUserId);
+            
+            // 开始计时
+            startTime = Date.now();
+            sessionStartTime = Date.now();
+            
+            const readingContent = document.getElementById('readingContent');
+            if (readingContent) {
+                readingContent.addEventListener('scroll', handleScroll);
+            }
+
+            // 页面加载动画
+            const container = document.querySelector('.container');
+            container.classList.add('fade-in');
+
+            // 加载统计数据和示例文本
+            loadStats();
+            loadSampleText();
+
+            // 添加文本选择事件监听
+            document.addEventListener('mouseup', handleTextSelection);
+            document.addEventListener('touchend', handleTextSelection);
+
+            // 添加页面可见性变化监听
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+
+            // 启动阅读时间计时器
+            setInterval(updateReadingTime, 1000); // 每秒更新一次
+
+                    // 添加弹窗关闭功能
+        document.addEventListener('click', function(e) {
+            if (e.target.id === 'statsModal') {
+                closeStats();
+            }
+            // 点击统计弹窗外部区域关闭弹窗
+            if (e.target.classList.contains('stats-modal')) {
+                closeStats();
+            }
+        });
+
+            // 添加页面卸载事件监听，记录退出次数
+            window.addEventListener('beforeunload', function() {
+                recordExit();
+            });
+            
+            // 记录用户进入阅读页面
+            recordUserAction('enter_reading_page');
+            
+            // 清除所有统计数据
+            clearAllStats();
+        });
+
+        // 加载示例文本
+        function loadSampleText() {
+            const textContent = document.getElementById('textContent');
+            if (!textContent) return;
+
+            // 这里可以替换为实际的Oliver Twist文本
+            const sampleText = `
+                <div class="chapter">
+                    <h2>Chapter 1: Treats of the Place Where Oliver Twist was Born and of the Circumstances Attending His Birth</h2>
+                    
+                    <p>Among other public buildings in a certain town, which for many reasons it will be prudent to refrain from mentioning, and to which I will assign no fictitious name, there is one anciently common to most towns, great or small: to wit, a workhouse; and in this workhouse was born; on a day and date which I need not trouble myself to repeat, inasmuch as it can be of no possible consequence to the reader, in this stage of the business at all events; the item of mortality whose name is prefixed to the head of this chapter.</p>
+                    
+                    <p>For a long time after it was ushered into this world of sorrow and trouble, by the parish surgeon, it remained a matter of considerable doubt whether the child would survive to bear any name at all; in which case it is somewhat more than probable that these memoirs would never have appeared; or, if they had, that being comprised within a couple of pages, they would have possessed the inestimable merit of being the most concise and faithful specimen of biography, extant in the literature of any age or country.</p>
+                    
+                    <p>Although I am not disposed to maintain that the being born in a workhouse, is in itself the most fortunate and enviable circumstance that can possibly befall a human being, I do mean to say that in this particular instance, it was the best thing for Oliver Twist that could by possibility have occurred. The fact is, that there was considerable difficulty in inducing Oliver to take upon himself the office of respiration,—a troublesome practice, but one which custom has rendered necessary to our easy existence; and for some time he lay gasping on a little flock mattress, rather unequally poised between this world and the next: the balance was decidedly in favour of the latter.</p>
+                </div>
+                
+                <div class="chapter">
+                    <h2>Chapter 2: Treats of Oliver Twist's Growth, Education, and Board</h2>
+                    
+                    <p>For the next eight or ten months, Oliver was the victim of a systematic course of treachery and deception. He was brought up by hand. The hungry and destitute situation of the infant orphan was duly reported by the workhouse authorities to the parish authorities. The parish authorities inquired with dignity of the workhouse authorities, whether there was not female then domiciled in 'the house' who was in a situation to impart to Oliver Twist, the consolation and nourishment of which he stood in need. The workhouse authorities replied with humility, that there was not. Upon this, the parish authorities magnanimously and humanely resolved, that Oliver should be 'farmed,' or, in other words, that he should be dispatched to a branch-workhouse some three miles off, where twenty or thirty other juvenile offenders against the poor-laws, rolled about the floor all day, without the inconvenience of too much food or too much clothing, under the parental superintendence of an elderly female, who received the culprits at and for the consideration of sevenpence-halfpenny per small head per week. Sevenpence-halfpenny worth of gruel per week, and a onion twice a week, and half a roll of bread on Sundays. The gruel was served out with a ladle; and the children were served out with the gruel. At last, they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.</p>
+                    
+                    <p>The evening arrived; the boys took their places. The master, in his cook's uniform, stationed himself at the copper; his pauper assistants ranged themselves behind him; the gruel was served out; and a long grace was said over the short commons. The gruel disappeared; the boys whispered each other, and winked at Oliver; while his next neighbours nudged him. Child as he was, he was desperate with hunger, and reckless with misery. He rose from the table; and advancing to the master, basin and spoon in hand, said: somewhat alarmed at his own temerity:</p>
+                    
+                    <p>"Please, sir, I want some more."</p>
+                    
+                    <p>The master was a fat, healthy man; but he turned very pale. He gazed in stupefied astonishment on the small rebel for some seconds, and then clung for support to the copper. The assistants were paralysed with wonder; the boys with fear.</p>
+                    
+                    <p>"What!" said the master at length, in a faint voice.</p>
+                    
+                    <p>"Please, sir," replied Oliver, "I want some more."</p>
+                    
+                    <p>The master aimed a blow at Oliver's head with the ladle; pinioned him in his arm; and shrieked aloud for the beadle.</p>
+                    
+                    <p>The board were sitting in solemn conclave, when Mr. Bumble rushed into the room in great excitement, and addressing the gentleman in the high chair, said:</p>
+                    
+                    <p>"Mr. Limbkins, I beg your pardon, sir! Oliver Twist has asked for more!"</p>
+                    
+                    <p>There was a general start. Horror was depicted on every countenance.</p>
+                    
+                    <p>"For more!" said Mr. Limbkins. "Compose yourself, Bumble, and answer me distinctly. Do I understand that he asked for more, after he had eaten the supper allotted by the dietary?"</p>
+                    
+                    <p>"He did, sir," replied Bumble.</p>
+                    
+                    <p>"That boy will be hung," said the gentleman in the white waistcoat. "I know that boy will be hung."</p>
+                    
+                    <p>Nobody controverted the prophetic gentleman's opinion. An animated discussion took place. Oliver was ordered into instant confinement; and a bill was next morning pasted on the outside of the gate, offering a reward of five pounds to anybody who would take Oliver Twist off the hands of the parish. In other words, five pounds and Oliver Twist were offered to any man or woman who wanted an apprentice to any trade, business, or calling.</p>
+                    
+                    <p>"I never was more convinced of anything in my life," said the gentleman in the white waistcoat, as he knocked at the gate and read the bill on the evening of the same day; "I never was more convinced of anything in my life, than I am that that boy will come to be hung."</p>
+                    
+                    <p>As I purpose to show in the sequel whether the white-waistcoated gentleman was right or not, I should perhaps mar the interest of this narrative (supposing it to possess any at all), if I ventured to hint just yet, whether the life of Oliver Twist had this violent termination or no.</p>
+                </div>
+            `;
+
+            textContent.innerHTML = sampleText;
+        }
+    
