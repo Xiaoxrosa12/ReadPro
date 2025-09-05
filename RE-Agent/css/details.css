@@ -1,0 +1,391 @@
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #FDFDFD;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 428px;
+            height: 926px;
+            background-color: #FDFDFD;
+            position: relative;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        /* 背景装饰椭圆 */
+        .bg-ellipse-1 {
+            position: absolute;
+            left: 240px;
+            top: 179px;
+            width: 200px;
+            height: 200px;
+            background: rgba(9, 251, 211, 0.05);
+            border-radius: 50%;
+            filter: blur(200px);
+            z-index: 1;
+        }
+
+        .bg-ellipse-2 {
+            position: absolute;
+            left: -10px;
+            top: 179px;
+            width: 200px;
+            height: 200px;
+            background: rgba(212, 85, 85, 0.05);
+            border-radius: 50%;
+            filter: blur(200px);
+            z-index: 1;
+        }
+
+        /* 顶部导航栏 */
+        .top-nav {
+            position: absolute;
+            top: 50px;
+            left: 29.5px;
+            width: 368px;
+            height: 54px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .nav-button {
+            width: 54px;
+            height: 54px;
+            background: #FFFFFF;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 2px 4px 16px 4px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 2px 6px 20px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-button svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .nav-button svg rect {
+            fill: #FFFFFF;
+        }
+
+        .nav-button svg path {
+            transition: fill 0.3s ease;
+        }
+
+        .back-button svg path {
+            fill: #19191B;
+        }
+
+        .favorite-button svg path {
+            fill: #A88DCB;
+        }
+
+        .favorite-button.favorited svg path {
+            fill: #FF6B6B;
+        }
+
+        .favorite-button.favorited {
+            animation: favoritePulse 0.6s ease;
+        }
+
+        @keyframes favoritePulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* 书籍封面区域 */
+        .book-cover-section {
+            position: absolute;
+            top: 0;
+            left: -1px;
+            width: 429px;
+            height: 436px;
+            z-index: 2;
+        }
+
+        .book-cover-bg {
+            position: absolute;
+            top: 41px;
+            left: 0;
+            width: 429px;
+            height: 436px;
+            background: url('../images/Oliver Twist.jpeg') center/cover;
+            border-radius: 38px;
+            filter: blur(150px);
+            z-index: 1;
+        }
+
+        .book-cover-main {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 429px;
+            height: 436px;
+            background: url('../images/Oliver Twist.jpeg') center/cover;
+            border-radius: 0px 0px 38px 38px;
+            box-shadow: 3px 7px 20px 1px rgba(6, 7, 13, 0.4);
+            z-index: 2;
+        }
+
+        /* 书籍信息 */
+        .book-info {
+            position: absolute;
+            left: 36px;
+            top: 450px;
+            z-index: 10;
+        }
+
+        .book-title {
+            font-weight: 600;
+            font-size: 18px;
+            line-height: 1.5em;
+            color: #19191B;
+            margin-bottom: 2px;
+        }
+
+        .book-author {
+            font-weight: 500;
+            font-size: 16px;
+            line-height: 1.5em;
+            color: #9D9D9D;
+            margin-bottom: 22px;
+        }
+
+        /* 评分区域 */
+        .rating-section {
+            position: absolute;
+            left: 36px;
+            top: 505px;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            z-index: 10;
+        }
+
+        .stars {
+            display: flex;
+            gap: 4px;
+        }
+
+        .star {
+            width: 20px;
+            height: 20px;
+            background: #FFCE31;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .star::before {
+            content: '★';
+            color: #FFFFFF;
+            font-size: 12px;
+        }
+
+        .rating-score {
+            font-weight: 400;
+            font-size: 14px;
+            line-height: 1.5em;
+            color: #19191B;
+            margin-left: 8px;
+        }
+
+        /* 内容区域 */
+        .content-section {
+            position: absolute;
+            left: 36px;
+            top: 542px;
+            width: 356px;
+            z-index: 10;
+        }
+
+        .content-block {
+            margin-bottom: 18px;
+        }
+
+        .content-title {
+            font-weight: 600;
+            font-size: 18px;
+            line-height: 1.5em;
+            color: #19191B;
+            margin-bottom: 6px;
+            text-align: left;
+        }
+
+        .content-text {
+            font-weight: 400;
+            font-size: 14px;
+            line-height: 1.5em;
+            color: #9D9D9D;
+            text-align: left;
+        }
+
+        .overview-text {
+            width: 357px;
+        }
+
+        /* 按钮区域 */
+        .button-section {
+            position: absolute;
+            left: 36px;
+            top: 845px;
+            display: flex;
+            gap: 12px;
+            z-index: 10;
+        }
+
+        .btn {
+            width: 173px;
+            height: 55px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Poppins';
+            font-weight: 600;
+            font-size: 16px;
+            line-height: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: #A88DCB;
+            color: #FFFFFF;
+        }
+
+        .btn-primary:hover {
+            background: #9a7db8;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #BDC2FD;
+            color: #FFFFFF;
+        }
+
+        .btn-secondary:hover {
+            background: #a8b0f0;
+            transform: translateY(-2px);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 428px) {
+            .container {
+                width: 100%;
+                height: 100vh;
+            }
+            
+            .book-cover-section {
+                width: 100%;
+            }
+            
+            .book-cover-bg,
+            .book-cover-main {
+                width: 100%;
+            }
+            
+            .content-section {
+                width: calc(100% - 72px);
+            }
+            
+            .button-section {
+                width: calc(100% - 72px);
+                justify-content: space-between;
+            }
+            
+            .btn {
+                width: calc(50% - 6px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 背景装饰椭圆 -->
+        <div class="bg-ellipse-1"></div>
+        <div class="bg-ellipse-2"></div>
+
+        <!-- 顶部导航栏 -->
+        <div class="top-nav">
+            <div class="nav-button back-button" onclick="goBack()">
+                <svg width="19" height="16" viewBox="0 0 19 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18.914 6.99997H4.328L9.621 1.70697L8.207 0.292969L0.5 7.99997L8.207 15.707L9.621 14.293L4.328 8.99997H18.914V6.99997Z" fill="#19191B"/>
+                </svg>
+            </div>
+            <div class="nav-button favorite-button" onclick="toggleFavorite()">
+                <svg width="14" height="18" viewBox="0 0 14 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2.94 0C2.16026 0 1.41246 0.306334 0.861106 0.851612C0.309749 1.39689 0 2.13644 0 2.90758V17.307C0.000133069 17.4345 0.0358164 17.5594 0.103121 17.668C0.170425 17.7766 0.266739 17.8648 0.381457 17.9228C0.496175 17.9808 0.624846 18.0063 0.753302 17.9966C0.881757 17.9869 1.00501 17.9423 1.1095 17.8678L7 13.6622L12.8905 17.8692C12.9951 17.9438 13.1185 17.9884 13.247 17.998C13.3756 18.0077 13.5044 17.982 13.6192 17.9239C13.7339 17.8657 13.8302 17.7773 13.8974 17.6685C13.9646 17.5597 14.0001 17.4346 14 17.307V2.90758C14 2.13644 13.6903 1.39689 13.1389 0.851612C12.5875 0.306334 11.8397 0 11.06 0H2.94Z" fill="#A88DCB"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- 书籍封面区域 -->
+        <div class="book-cover-section">
+            <div class="book-cover-bg"></div>
+            <div class="book-cover-main"></div>
+        </div>
+
+        <!-- 书籍信息 -->
+        <div class="book-info">
+            <div class="book-title">Oliver Twist</div>
+            <div class="book-author">Charles Dickens</div>
+        </div>
+
+        <!-- 评分区域 -->
+        <div class="rating-section">
+            <div class="stars">
+                <div class="star"></div>
+                <div class="star"></div>
+                <div class="star"></div>
+                <div class="star"></div>
+            </div>
+            <div class="rating-score">4.0</div>
+        </div>
+
+        <!-- 内容区域 -->
+        <div class="content-section">
+            <div class="content-block">
+                <div class="content-title">About the author</div>
+                <div class="content-text">
+                    Charles Dickens (1812–1870), famed English novelist, exposed social injustices through works like Oliver Twist, blending vivid characters with sharp social critique.
+                </div>
+            </div>
+            
+            <div class="content-block">
+                <div class="content-title">Overview</div>
+                <div class="content-text overview-text">
+                    Oliver Twist follows a poor orphan through workhouses, crime-ridden London, and encounters with Fagin, the Artful Dodger, and the dangerous Bill Sikes. Amid betrayal and fleeting kindness, Oliver's fate hangs uncertain—will innocence survive a world of corruption?
+                </div>
+            </div>
+        </div>
+
+        <!-- 按钮区域 -->
+        <div class="button-section">
+            <button class="btn btn-primary" onclick="startReading()">Reading</button>
+            <button class="btn btn-secondary" onclick="goBack()">retrospect</button>
+        </div>
+    </div>
+
