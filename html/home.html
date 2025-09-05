@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - An Ebook Reading</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #FDFDFD;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .container {
+            width: 428px;
+            height: 926px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            background-color: #FDFDFD;
+        }
+
+        /* 背景装饰 */
+        .bg-decoration {
+            position: absolute;
+            top: -69px;
+            right: -41px;
+            width: 200px;
+            height: 200px;
+            background: rgba(9, 251, 211, 0.05);
+            border-radius: 50%;
+            filter: blur(200px);
+            z-index: 0;
+        }
+
+        /* 返回按钮 */
+        .back-button {
+            position: absolute;
+            left: 30px;
+            top: 62px;
+            width: 22px;
+            height: 16px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+
+
+        /* 用户头像区域 */
+        .user-section {
+            position: absolute;
+            right: 30px;
+            top: 50px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            z-index: 10;
+        }
+
+        .notification-badge {
+            width: 57px;
+            height: 25px;
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: #A88DCB;
+            border-radius: 50%;
+            background-image: url('../images/Oliver Twist.jpeg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* 欢迎文本 */
+        .welcome-section {
+            position: absolute;
+            left: 30px;
+            top: 120px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            z-index: 10;
+        }
+
+        .welcome-text {
+            font-weight: 500;
+            font-size: 16px;
+            line-height: 1.5em;
+            color: #9D9D9D;
+        }
+
+        .welcome-title {
+            font-weight: 500;
+            font-size: 26px;
+            line-height: 1.38em;
+            color: #19191B;
+            width: 318px;
+        }
+
+        /* 搜索框 */
+        .search-container {
+            position: absolute;
+            left: 30px;
+            top: 252px;
+            width: 368px;
+            height: 49px;
+            background: rgba(196, 196, 196, 0.15);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 15px;
+            z-index: 10;
+        }
+
+        .search-icon {
+            width: 20px;
+            height: 19px;
+            position: relative;
+        }
+
+        .search-input {
+            flex: 1;
+            background: none;
+            border: none;
+            font-family: 'Poppins';
+            font-weight: 400;
+            font-size: 16px;
+            line-height: 1.375em;
+            color: #C4C4C4;
+            outline: none;
+        }
+
+        .search-input::placeholder {
+            color: #C4C4C4;
+        }
+
+        /* 分类标签 */
+        .categories-section {
+            position: absolute;
+            left: 30px;
+            top: 335px;
+            display: flex;
+            gap: 30px;
+            z-index: 10;
+            overflow-x: auto;
+            padding-right: 30px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .categories-section::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-item {
+            font-weight: 400;
+            font-size: 16px;
+            line-height: 1.5em;
+            color: #9D9D9D;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .category-item:hover {
+            background-color: rgba(168, 141, 203, 0.1);
+        }
+
+        .category-item.clickable {
+            cursor: pointer;
+        }
+
+        .category-item.clickable:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(168, 141, 203, 0.2);
+        }
+
+        .category-item.active {
+            color: #19191B;
+        }
+
+        .category-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -24px;
+            left: 0;
+            width: 53px;
+            height: 2px;
+            background: #D45555;
+        }
+
+        /* 书籍展示区域 */
+        .books-section {
+            position: absolute;
+            left: 30px;
+            top: 394px;
+            display: flex;
+            gap: 34px;
+            overflow-x: auto;
+            padding-right: 30px;
+            z-index: 10;
+        }
+
+        .book-item {
+            width: 160px;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .book-item.clickable {
+            cursor: pointer;
+        }
+
+        .book-item.clickable:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(168, 141, 203, 0.3);
+        }
+
+        .book-cover {
+            width: 160px;
+            height: 249.6px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            box-shadow: 3px 7px 20px 1px rgba(6, 7, 13, 0.4);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .book-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .book-info {
+            margin-top: 15px;
+            text-align: left;
+        }
+
+        .book-title {
+            font-weight: 600;
+            font-size: 16px;
+            line-height: 1.5em;
+            color: #19191B;
+            margin-bottom: 1px;
+        }
+
+        .book-author {
+            font-weight: 500;
+            font-size: 12px;
+            line-height: 1.5em;
+            color: #9D9D9D;
+        }
+
+        /* New Arrivals 区域 */
+        .new-arrivals {
+            position: absolute;
+            left: 30px;
+            top: 732px;
+            width: 357px;
+            z-index: 10;
+        }
+
+        .new-arrivals-title {
+            font-weight: 600;
+            font-size: 24px;
+            line-height: 1.5em;
+            color: #19191B;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .new-arrivals-books {
+            display: flex;
+            gap: 37px;
+        }
+
+        .new-arrivals-book {
+            width: 160px;
+            height: 249.6px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            box-shadow: 3px 7px 20px 1px rgba(6, 7, 13, 0.4);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .new-arrivals-book img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .home-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            height: 24px;
+            background: #FFFFFF;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .home-icon::after {
+            content: '🏠';
+            font-size: 16px;
+        }
+
+        /* 底部导航栏 */
+        .tab-bar {
+            position: absolute;
+            bottom: 0;
+            left: 10px;
+            width: 408px;
+            height: 97.23px;
+            background: #FFFFFF;
+            backdrop-filter: blur(20px);
+            border-radius: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 0 40px;
+            z-index: 20;
+            box-shadow: 0 4px 20px rgba(25, 25, 27, 0.1);
+        }
+
+        .tab-item {
+            width: 60px;
+            height: 60px;
+            background: transparent;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .tab-item.active {
+            background: transparent;
+        }
+
+        .tab-item svg {
+            width: 19px;
+            height: 19px;
+        }
+
+        /* 调整房子图标大小，恢复到19x19 */
+        .tab-item:nth-child(2) svg {
+            width: 19px;
+            height: 19px;
+        }
+
+        .tab-item.active svg path {
+            fill: #A88DCB;
+            stroke: #A88DCB;
+        }
+
+        /* 为选中图标添加发光效果 */
+        .tab-item.active {
+            position: relative;
+        }
+
+        .tab-item.active::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle, rgba(168, 141, 203, 0.3) 0%, rgba(168, 141, 203, 0.1) 50%, transparent 70%);
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        .tab-item:not(.active) svg path {
+            fill: none;
+            stroke: #CDCDCD;
+            stroke-width: 1px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 428px) {
+            .container {
+                width: 100%;
+                height: 100vh;
+            }
+            
+            .search-container {
+                width: calc(100% - 60px);
+            }
+            
+            .books-section {
+                width: calc(100% - 60px);
+            }
+            
+            .tab-bar {
+                width: calc(100% - 20px);
+                left: 10px;
+            }
+        }
+
+        /* 滚动条样式 */
+        .books-section::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .books-section::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .books-section::-webkit-scrollbar-thumb {
+            background: rgba(168, 141, 203, 0.3);
+            border-radius: 2px;
+        }
+
+        .books-section::-webkit-scrollbar-thumb:hover {
+            background: rgba(168, 141, 203, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 背景装饰 -->
+        <div class="bg-decoration"></div>
+
+        <!-- 返回按钮 -->
+        <button class="back-button" onclick="goBack()">
+            <svg width="24" height="18" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1H23M1 17H23H1ZM1 9H23H1Z" stroke="#A88DCB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+
+        <!-- 用户头像区域 -->
+        <div class="user-section">
+            <div class="notification-badge">
+                <svg width="57" height="26" viewBox="0 0 57 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="51" height="25" rx="12.5" fill="#9D9D9D"/>
+                    <circle cx="12" cy="13" r="11" fill="white"/>
+                </svg>
+            </div>
+            <div class="user-avatar"></div>
+        </div>
+
+        <!-- 欢迎文本 -->
+        <div class="welcome-section">
+            <div class="welcome-text">Welcome back</div>
+            <div class="welcome-title">So, what are we reading today?</div>
+        </div>
+
+        <!-- 搜索框 -->
+        <div class="search-container">
+            <div class="search-icon">
+                <svg width="19" height="19" viewBox="0 0 20 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0.580078 9.27173C0.580078 8.44715 0.684938 7.64831 0.881312 6.88474C1.40796 6.91243 1.93201 6.79394 2.39553 6.54239C2.85904 6.29084 3.24397 5.91602 3.50777 5.45936C3.77157 5.0027 3.90395 4.48199 3.89029 3.95479C3.87663 3.42759 3.71745 2.91443 3.43036 2.47205C4.58281 1.3382 6.00495 0.516411 7.56279 0.0841064C7.80205 0.55452 8.16682 0.94955 8.61671 1.22547C9.0666 1.50139 9.58407 1.64743 10.1118 1.64743C10.6396 1.64743 11.1571 1.50139 11.607 1.22547C12.0569 0.94955 12.4216 0.55452 12.6609 0.0841064C14.2187 0.516411 15.6409 1.3382 16.7933 2.47205C16.5059 2.91451 16.3465 3.42787 16.3327 3.95531C16.319 4.48275 16.4514 5.00371 16.7153 5.46057C16.9793 5.91742 17.3645 6.29235 17.8283 6.54387C18.2921 6.79539 18.8164 6.91369 19.3433 6.88569C19.5397 7.64831 19.6445 8.44715 19.6445 9.27173C19.6445 10.0963 19.5397 10.8952 19.3433 11.6587C18.8166 11.6309 18.2924 11.7492 17.8287 12.0007C17.3651 12.2522 16.98 12.627 16.7161 13.0837C16.4522 13.5403 16.3197 14.0611 16.3333 14.5884C16.347 15.1157 16.5062 15.629 16.7933 16.0714C15.6409 17.2053 14.2187 18.0271 12.6609 18.4594C12.4216 17.9889 12.0569 17.5939 11.607 17.318C11.1571 17.0421 10.6396 16.896 10.1118 16.896C9.58407 16.896 9.0666 17.0421 8.61671 17.318C8.16682 17.5939 7.80205 17.9889 7.56279 18.4594C6.00495 18.0271 4.58281 17.2053 3.43036 16.0714C3.71778 15.629 3.87718 15.1156 3.89095 14.5882C3.90471 14.0607 3.7723 13.5398 3.50835 13.0829C3.2444 12.626 2.85921 12.2511 2.3954 11.9996C1.93159 11.7481 1.40724 11.6298 0.880359 11.6578C0.684938 10.8961 0.580078 10.0973 0.580078 9.27173ZM5.15959 12.1315C5.76015 13.1716 5.93174 14.3679 5.69724 15.4909C6.08617 15.7673 6.49989 16.0066 6.93363 16.2058C7.80746 15.423 8.93961 14.9905 10.1128 14.9914C11.3139 14.9914 12.4369 15.4404 13.2919 16.2058C13.7257 16.0066 14.1394 15.7673 14.5283 15.4909C14.2876 14.3431 14.479 13.1468 15.066 12.1315C15.6519 11.1157 16.5922 10.3519 17.7065 9.98669C17.7506 9.51107 17.7506 9.0324 17.7065 8.55678C16.5918 8.19173 15.6512 7.42793 15.065 6.41192C14.4781 5.39662 14.2866 4.20036 14.5274 3.05259C14.1386 2.77607 13.7246 2.5367 13.291 2.33764C12.4174 3.12021 11.2856 3.55269 10.1128 3.55211C8.93961 3.55292 7.80746 3.12043 6.93363 2.33764C6.50002 2.53671 6.08606 2.77608 5.69724 3.05259C5.938 4.20036 5.74654 5.39662 5.15959 6.41192C4.57368 7.42775 3.63339 8.19153 2.51903 8.55678C2.47495 9.0324 2.47495 9.51107 2.51903 9.98669C3.63374 10.3517 4.57441 11.1155 5.16055 12.1315H5.15959ZM10.1128 12.1315C9.35432 12.1315 8.62691 11.8302 8.09059 11.2939C7.55428 10.7576 7.25298 10.0302 7.25298 9.27173C7.25298 8.51326 7.55428 7.78586 8.09059 7.24954C8.62691 6.71322 9.35432 6.41192 10.1128 6.41192C10.8713 6.41192 11.5987 6.71322 12.135 7.24954C12.6713 7.78586 12.9726 8.51326 12.9726 9.27173C12.9726 10.0302 12.6713 10.7576 12.135 11.2939C11.5987 11.8302 10.8713 12.1315 10.1128 12.1315ZM10.1128 10.225C10.3656 10.225 10.6081 10.1246 10.7869 9.9458C10.9656 9.76702 11.0661 9.52456 11.0661 9.27173C11.0661 9.01891 10.9656 8.77644 10.7869 8.59767C10.6081 8.41889 10.3656 8.31846 10.1128 8.31846C9.85997 8.31846 9.6175 8.41889 9.43872 8.59767C9.25995 8.77644 9.15952 9.01891 9.15952 9.27173C9.15952 9.52456 9.25995 9.76702 9.43872 9.9458C9.6175 10.1246 9.85997 10.225 10.1128 10.225Z" fill="#CDCDCD"/>
+                </svg>
+            </div>
+            <input type="text" class="search-input" placeholder="Search">
+        </div>
+
+        <!-- 分类标签 -->
+        <div class="categories-section">
+            <div class="category-item active clickable" onclick="setActiveCategory(this)">Novels</div>
+            <div class="category-item clickable" onclick="setActiveCategory(this)">Self-love</div>
+            <div class="category-item clickable" onclick="setActiveCategory(this)">Science</div>
+            <div class="category-item clickable" onclick="setActiveCategory(this)">Romance</div>
+            <div class="category-item clickable" onclick="setActiveCategory(this)">Crime</div>
+            <div class="category-item clickable" onclick="setActiveCategory(this)">Education</div>
+            <div class="category-item clickable" onclick="setActiveCategory(this)">Psycology</div>
+            <div class="category-item clickable" onclick="setActiveCategory(this)">Fiction</div>
+            <div class="category-item clickable" onclick="setActiveCategory(this)">Non-fiction</div>
+            <div class="category-item clickable" onclick="setActiveCategory(this)">Biography</div>
+            <div class="category-item clickable" onclick="setActiveCategory(this)">History</div>
+            <div class="category-item clickable" onclick="setActiveCategory(this)">Travel</div>
+        </div>
+
+        <!-- 书籍展示区域 -->
+        <div class="books-section" id="booksSection">
+            <div class="book-item clickable" onclick="goToDetails()">
+                <div class="book-cover">
+                    <img src="../images/Oliver Twist.jpeg" alt="Oliver Twist">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Oliver Twist</div>
+                    <div class="book-author">J.D. Salinger</div>
+                </div>
+            </div>
+            <div class="book-item">
+                <div class="book-cover">
+                    <img src="../images/Oliver Twist.jpeg" alt="Don't click this one">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Don't click this one</div>
+                    <div class="book-author">xx</div>
+                </div>
+            </div>
+            <div class="book-item">
+                <div class="book-cover">
+                    <img src="../images/Oliver Twist.jpeg" alt="Don't click this one">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Don't click this one</div>
+                    <div class="book-author">xx</div>
+                </div>
+            </div>
+            <div class="book-item">
+                <div class="book-cover">
+                    <img src="../images/Oliver Twist.jpeg" alt="Book 4">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Book 4</div>
+                    <div class="book-author">Author 4</div>
+                </div>
+            </div>
+            <div class="book-item">
+                <div class="book-cover">
+                    <img src="../images/Oliver Twist.jpeg" alt="Book 5">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Book 5</div>
+                    <div class="book-author">Author 5</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Arrivals 区域 -->
+        <div class="new-arrivals">
+            <div class="new-arrivals-title">New Arrivals</div>
+            <div class="new-arrivals-books">
+                <div class="new-arrivals-book">
+                    <img src="../images/Oliver Twist.jpeg" alt="New Book 1">
+                </div>
+                <div class="new-arrivals-book">
+                    <img src="../images/Oliver Twist.jpeg" alt="New Book 2">
+                    <div class="home-icon"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部导航栏 -->
+        <div class="tab-bar">
+            <div class="tab-item" onclick="setActiveTab(this, 0)">
+                <svg width="19" height="19" viewBox="0 0 16 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3.56836 1.08411H12.415C13.0269 1.08422 13.5973 1.30755 14.0049 1.67981C14.4094 2.04938 14.6172 2.52994 14.6172 3.00989V17.004L8.54199 12.9962L7.99121 12.6339L7.44043 12.9962L1.36523 17.0031V3.00989L1.375 2.8302C1.42027 2.41161 1.62366 2.0032 1.97754 1.67981C2.38518 1.30746 2.95634 1.08411 3.56836 1.08411Z" stroke="#19191B" stroke-width="2" fill="none"/>
+                </svg>
+            </div>
+            <div class="tab-item active" onclick="setActiveTab(this, 1)">
+                <svg width="19" height="19" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 2L2 8V18H18V8L10 2ZM10 4.5L16 9V16H4V9L10 4.5ZM8 14H12V12H8V14Z" fill="#A88DCB"/>
+                </svg>
+            </div>
+            <div class="tab-item" onclick="setActiveTab(this, 2)">
+                <svg width="19" height="19" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18.7204 0.0841064H11.2305L10.7538 0.325441L9.86865 1.35513L8.98347 0.325441L8.50683 0.0841064H1.01685L0.335938 0.888555V16.9775L1.01685 17.782H8.22085L9.39201 19.1495H10.3453L11.5164 17.782H18.7204L19.4014 16.9775V0.888555L18.7204 0.0841064ZM9.18774 16.6879L8.94261 16.4144L8.50683 16.1731H1.69775V1.693H8.22085L9.22859 2.88359L9.18774 16.6879ZM18.0395 16.1731H11.2305L10.7538 16.4144L10.5632 16.6236V2.81923L11.5164 1.693H18.0395V16.1731ZM7.14502 4.91079H3.05957V6.51969H7.14502V4.91079ZM7.14502 11.3464H3.05957V12.9553H7.14502V11.3464ZM3.05957 8.12859H7.14502V9.73748H3.05957V8.12859ZM16.6777 4.91079H12.5923V6.51969H16.6777V4.91079ZM12.5923 8.12859H16.6777V9.73748H12.5923V8.12859ZM12.5923 11.3464H16.6777V12.9553H16.6777V11.3464Z" stroke="#CDCDCD" stroke-width="1" fill="none"/>
+                </svg>
+            </div>
+            <div class="tab-item" onclick="setActiveTab(this, 3)">
+                <svg width="19" height="19" viewBox="0 0 20 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0.580078 9.27173C0.580078 8.44715 0.684938 7.64831 0.881312 6.88474C1.40796 6.91243 1.93201 6.79394 2.39553 6.54239C2.85904 6.29084 3.24397 5.91602 3.50777 5.45936C3.77157 5.0027 3.90395 4.48199 3.89029 3.95479C3.87663 3.42759 3.71745 2.91443 3.43036 2.47205C4.58281 1.3382 6.00495 0.516411 7.56279 0.0841064C7.80205 0.55452 8.16682 0.94955 8.61671 1.22547C9.0666 1.50139 9.58407 1.64743 10.1118 1.64743C10.6396 1.64743 11.1571 1.50139 11.607 1.22547C12.0569 0.94955 12.4216 0.55452 12.6609 0.0841064C14.2187 0.516411 15.6409 1.3382 16.7933 2.47205C16.5059 2.91451 16.3465 3.42787 16.3327 3.95531C16.319 4.48275 16.4514 5.00371 16.7153 5.46057C16.9793 5.91742 17.3645 6.29235 17.8283 6.54387C18.2921 6.79539 18.8164 6.91369 19.3433 6.88569C19.5397 7.64831 19.6445 8.44715 19.6445 9.27173C19.6445 10.0963 19.5397 10.8952 19.3433 11.6587C18.8166 11.6309 18.2924 11.7492 17.8287 12.0007C17.3651 12.2522 16.98 12.627 16.7161 13.0837C16.4522 13.5403 16.3197 14.0611 16.3333 14.5884C16.347 15.1157 16.5062 15.629 16.7933 16.0714C15.6409 17.2053 14.2187 18.0271 12.6609 18.4594C12.4216 17.9889 12.0569 17.5939 11.607 17.318C11.1571 17.0421 10.6396 16.896 10.1118 16.896C9.58407 16.896 9.0666 17.0421 8.61671 17.318C8.16682 17.5939 7.80205 17.9889 7.56279 18.4594C6.00495 18.0271 4.58281 17.2053 3.43036 16.0714C3.71778 15.629 3.87718 15.1156 3.89095 14.5882C3.90471 14.0607 3.7723 13.5398 3.50835 13.0829C3.2444 12.626 2.85921 12.2511 2.3954 11.9996C1.93159 11.7481 1.40724 11.6298 0.880359 11.6578C0.684938 10.8961 0.580078 10.0973 0.580078 9.27173ZM5.15959 12.1315C5.76015 13.1716 5.93174 14.3679 5.69724 15.4909C6.08617 15.7673 6.49989 16.0066 6.93363 16.2058C7.80746 15.423 8.93961 14.9905 10.1128 14.9914C11.3139 14.9914 12.4369 15.4404 13.2919 16.2058C13.7257 16.0066 14.1394 15.7673 14.5283 15.4909C14.2876 14.3431 14.479 13.1468 15.066 12.1315C15.6519 11.1157 16.5922 10.3519 17.7065 9.98669C17.7506 9.51107 17.7506 9.0324 17.7065 8.55678C16.5918 8.19173 15.6512 7.42793 15.065 6.41192C14.4781 5.39662 14.2866 4.20036 14.5274 3.05259C14.1386 2.77607 13.7246 2.5367 13.291 2.33764C12.4174 3.12021 11.2856 3.55269 10.1128 3.55211C8.93961 3.55292 7.80746 3.12043 6.93363 2.33764C6.50002 2.53671 6.08606 2.77608 5.69724 3.05259C5.938 4.20036 5.74654 5.39662 5.15959 6.41192C4.57368 7.42775 3.63339 8.19153 2.51903 8.55678C2.47495 9.0324 2.47495 9.51107 2.51903 9.98669C3.63374 10.3517 4.57441 11.1155 5.16055 12.1315H5.15959ZM10.1128 12.1315C9.35432 12.1315 8.62691 11.8302 8.09059 11.2939C7.55428 10.7576 7.25298 10.0302 7.25298 9.27173C7.25298 8.51326 7.55428 7.78586 8.09059 7.24954C8.62691 6.71322 9.35432 6.41192 10.1128 6.41192C10.8713 6.41192 11.5987 6.71322 12.135 7.24954C12.6713 7.78586 12.9726 8.51326 12.9726 9.27173C12.9726 10.0302 12.6713 10.7576 12.135 11.2939C11.5987 11.8302 10.8713 12.1315 10.1128 12.1315ZM10.1128 10.225C10.3656 10.225 10.6081 10.1246 10.7869 9.9458C10.9656 9.76702 11.0661 9.52456 11.0661 9.27173C11.0661 9.01891 10.9656 8.77644 10.7869 8.59767C10.6081 8.41889 10.3656 8.31846 10.1128 8.31846C9.85997 8.31846 9.6175 8.41889 9.43872 8.59767C9.25995 8.77644 9.15952 9.01891 9.15952 9.27173C9.15952 9.52456 9.25995 9.76702 9.43872 9.9458C9.6175 10.1246 9.85997 10.225 10.1128 10.225Z" stroke="#CDCDCD" stroke-width="1" fill="none"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            // 返回number页面
+            window.location.href = 'number.html';
+        }
+
+        function setActiveCategory(element) {
+            // 移除所有active类
+            document.querySelectorAll('.category-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            // 添加active类到当前元素
+            element.classList.add('active');
+        }
+
+        function setActiveTab(element, index) {
+            // 移除所有active类
+            document.querySelectorAll('.tab-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            // 添加active类到当前元素
+            element.classList.add('active');
+            
+            // 这里可以添加页面切换逻辑
+            console.log('切换到标签:', index);
+        }
+
+        function goToDetails() {
+            // 跳转到Details页面
+            console.log('准备跳转到Details页面...');
+            window.location.href = 'details.html';
+        }
+
+        // 添加触摸滑动支持
+        let startX = 0;
+        let scrollLeft = 0;
+        const booksSection = document.getElementById('booksSection');
+        const categoriesSection = document.querySelector('.categories-section');
+
+        // 书籍区域的触摸滑动
+        booksSection.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].pageX - booksSection.offsetLeft;
+            scrollLeft = booksSection.scrollLeft;
+        });
+
+        booksSection.addEventListener('touchmove', (e) => {
+            if (!startX) return;
+            const x = e.touches[0].pageX - booksSection.offsetLeft;
+            const walk = (x - startX) * 2;
+            booksSection.scrollLeft = scrollLeft - walk;
+        });
+
+        booksSection.addEventListener('touchend', () => {
+            startX = 0;
+        });
+
+        // 分类标签的触摸滑动
+        let categoriesStartX = 0;
+        let categoriesScrollLeft = 0;
+
+        categoriesSection.addEventListener('touchstart', (e) => {
+            categoriesStartX = e.touches[0].pageX - categoriesSection.offsetLeft;
+            categoriesScrollLeft = categoriesSection.scrollLeft;
+        });
+
+        categoriesSection.addEventListener('touchmove', (e) => {
+            if (!categoriesStartX) return;
+            const x = e.touches[0].pageX - categoriesSection.offsetLeft;
+            const walk = (x - categoriesStartX) * 2;
+            categoriesSection.scrollLeft = categoriesScrollLeft - walk;
+        });
+
+        categoriesSection.addEventListener('touchend', () => {
+            categoriesStartX = 0;
+        });
+
+        // 页面加载动画
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.querySelector('.container');
+            container.style.opacity = '0';
+            container.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                container.style.transition = 'all 0.6s ease';
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0)';
+            }, 100);
+        });
+    </script>
+</body>
+</html>

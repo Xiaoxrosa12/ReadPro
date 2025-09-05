@@ -1,0 +1,3800 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Normal - Oliver Twist</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #FFFFFF;
+            overflow: hidden;
+            width: 428px;
+            height: 926px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* 主容器 */
+        .container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: #FFFFFF;
+        }
+
+        /* 顶部导航栏 */
+        .top-button-bar {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 428px;
+            height: 127px;
+            background: #FFFFFF;
+            z-index: 100;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 0 0 20px 20px;
+        }
+
+        .top-button-bar.hidden {
+            transform: translateX(-50%) translateY(-100%);
+        }
+
+        .top-button-bar.visible {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .top-nav-content {
+            position: absolute;
+            top: 50px;
+            left: 53.5px;
+            width: 320.41px;
+            height: 51px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .back-button {
+            width: 19px;
+            height: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-button:hover {
+            transform: scale(1.1);
+        }
+
+        .back-button img {
+            width: 19px;
+            height: 16px;
+        }
+
+        .book-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .book-title {
+            font-weight: 600;
+            font-size: 18px;
+            line-height: 1.5em;
+            color: #19191B;
+            text-align: center;
+        }
+
+        .book-author {
+            font-weight: 500;
+            font-size: 16px;
+            line-height: 1.5em;
+            color: #9D9D9D;
+            text-align: center;
+        }
+
+        .menu-button {
+            width: 4px;
+            height: 16px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-dot {
+            width: 4px;
+            height: 4px;
+            background: #19191B;
+            border-radius: 50%;
+        }
+
+        /* 阅读内容区域 */
+        .reading-content {
+            position: absolute;
+            top: 128px;
+            left: 0;
+            width: 428px;
+            height: 798px;
+            padding: 10px 24px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background: #FFFFFF;
+        }
+
+        .text-content {
+            width: 380px;
+            min-height: 725px;
+            margin-bottom: 63px;
+            font-weight: 300;
+            font-size: 16px;
+            line-height: 2.25em;
+            color: #9D9D9D;
+            text-align: left;
+            cursor: pointer;
+            background: #FFFFFF;
+        }
+
+        .chapter {
+            margin-bottom: 40px;
+        }
+
+        .chapter h2 {
+            font-weight: 600;
+            font-size: 20px;
+            color: #19191B;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .chapter p {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        /* 高亮文本样式 */
+        .highlighted {
+            background: linear-gradient(120deg, #A88DCB 0%, #C4A8E8 100%);
+            color: #FFFFFF;
+            padding: 2px 4px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .highlighted:hover {
+            background: linear-gradient(120deg, #9B7BB8 0%, #B395D4 100%);
+            transform: scale(1.02);
+        }
+
+        .highlighted.selected {
+            background: linear-gradient(120deg, #8A6FA8 0%, #A88DCB 100%);
+            box-shadow: 0 0 10px rgba(168, 141, 203, 0.5);
+        }
+
+        /* 取消高亮按钮 */
+        .unhighlight-btn {
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 20px;
+            height: 20px;
+            background: #FF4757;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        .highlighted:hover .unhighlight-btn {
+            display: flex;
+        }
+
+        /* 页面加载动画 */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 滚动条样式 */
+        .reading-content::-webkit-scrollbar {
+            display: none;
+        }
+
+        .reading-content {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        /* Overlay遮罩样式 */
+        .overlay-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(234, 234, 234, 0.2);
+            -webkit-backdrop-filter: blur(4px);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            cursor: pointer;
+        }
+
+        .overlay-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1001;
+            pointer-events: none;
+        }
+
+        .top-tab-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 428px;
+            height: 127px;
+            background: #FFFFFF;
+            z-index: 1002;
+            pointer-events: auto;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .top-nav-content {
+            position: absolute;
+            top: 51px;
+            left: 53.5px;
+            width: 320.41px;
+            height: 51px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .back-button {
+            width: 19px;
+            height: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            transform: scale(1.1);
+        }
+
+        .back-button img {
+            width: 19px;
+            height: 16px;
+        }
+
+        .book-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .book-title {
+            font-weight: 600;
+            font-size: 18px;
+            line-height: 1.5em;
+            color: #19191B;
+            text-align: center;
+        }
+
+        .book-author {
+            font-weight: 500;
+            font-size: 16px;
+            line-height: 1.5em;
+            color: #9D9D9D;
+            text-align: center;
+        }
+
+        .menu-button {
+            width: 4px;
+            height: 16px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-dot {
+            width: 4px;
+            height: 4px;
+            background: #19191B;
+            border-radius: 50%;
+        }
+
+        .content-overlay {
+            position: absolute;
+            top: 127px;
+            left: 0;
+            width: 428px;
+            height: 741px;
+            background: rgba(234, 234, 234, 0.2);
+            -webkit-backdrop-filter: blur(6px);
+            backdrop-filter: blur(6px);
+            z-index: 1002;
+            pointer-events: auto;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .bottom-label-bar {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%) translateY(100%);
+            width: 428px;
+            height: 88px;
+            background: #FFFFFF;
+            border-radius: 30px 30px 0px 0px;
+            box-shadow: 0px -2px 12px 3px rgba(0, 0, 0, 0.25);
+            z-index: 1002;
+            pointer-events: auto;
+            transition: transform 0.3s ease-out;
+        }
+
+        .bottom-label-bar.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .bottom-icons {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 100px;
+        }
+
+        .icon-item {
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-item.active {
+            transform: scale(1.1);
+        }
+
+        .icon-item svg {
+            width: 30px;
+            height: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .icon-item.active img {
+            filter: brightness(0) saturate(100%) invert(67%) sepia(15%) saturate(1234%) hue-rotate(240deg) brightness(95%) contrast(90%);
+        }
+
+        .icon-item:not(.active) img {
+            filter: brightness(0) saturate(100%) invert(55%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(89%) contrast(86%);
+        }
+
+        /* Overlay动画 - 从中间弹出 */
+        @keyframes centerSlideIn {
+            from {
+                transform: scale(0.8) translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes centerSlideOut {
+            from {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+            to {
+                transform: scale(0.8) translateY(50px);
+                opacity: 0;
+            }
+        }
+
+        /* Recording统计弹窗样式 - 根据Figma设计 */
+        .stats-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 240px;
+            height: 320px;
+            background: #FFFFFF;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+            visibility: hidden;
+            opacity: 0;
+            padding: 0;
+        }
+
+        .stats-modal.show {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        .stats-header {
+            position: absolute;
+            top: 7px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 94px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 18px;
+            line-height: 1.5em;
+            color: #000000;
+        }
+
+        .stats-section {
+            position: absolute;
+            width: 184px;
+            height: 71px;
+        }
+
+        .stats-section.reading-time {
+            top: 57px;
+            left: 15px;
+        }
+
+        .stats-section.exit-count {
+            top: 148px;
+            left: 15px;
+            width: 104px;
+        }
+
+        .stats-section.stroke-count {
+            top: 239px;
+            left: 15px;
+            width: 121px;
+        }
+
+        .stats-label {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 28px;
+            background: #EAEAEA;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            font-size: 12px;
+            line-height: 1.5em;
+            color: #000000;
+        }
+
+        .stats-value {
+            position: absolute;
+            top: 43px;
+            left: 15px;
+            display: flex;
+            align-items: flex-end;
+            gap: 20px;
+        }
+
+        .stats-value > div {
+            display: flex;
+            align-items: flex-end;
+            gap: 5px;
+        }
+
+        .stats-display {
+            width: 42px;
+            height: 28px;
+            border: 1px solid #A88DCB;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 14px;
+            color: #19191B;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #FFFFFF;
+        }
+
+        .stats-unit {
+            font-weight: 300;
+            font-size: 13px;
+            line-height: 1.5em;
+            color: #000000;
+        }
+
+        /* 笔记本弹窗样式 */
+        .notebook-modal {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 428px;
+            height: 690px;
+            background: #FFFFFF;
+            border-radius: 30px 30px 0 0;
+            display: none;
+            flex-direction: column;
+            z-index: 10000;
+            box-shadow: 0px -2px 12px 3px rgba(0, 0, 0, 0.25);
+        }
+
+        .notebook-modal.show {
+            display: flex !important;
+        }
+
+        .notebook-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+        }
+
+        .notebook-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            width: 100%;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-icon {
+            width: 19px;
+            height: 16px;
+            object-fit: contain;
+        }
+
+        .notebook-title-bg {
+            background: #A88DCB;
+            border-radius: 10px;
+            padding: 5px 10px;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            margin: 0 20px;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-icon {
+            width: 30px;
+            height: 30px;
+            object-fit: contain;
+        }
+
+        .notebook-title {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            font-size: 16px;
+            line-height: 1.5em;
+            color: #FFFFFF;
+            text-align: center;
+        }
+
+
+        .notebook-content {
+            width: 380px;
+            height: 440px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            overflow-y: auto;
+            padding-right: 10px;
+            margin: 0 auto;
+        }
+
+        .notebook-item {
+            background: #FFFFFF;
+            border: 1px solid #757575;
+            border-radius: 20px;
+            padding: 10px;
+            position: relative;
+        }
+
+        .notebook-item .text {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 300;
+            font-size: 16px;
+            line-height: 1.5em;
+            color: #000000;
+            text-align: left;
+            word-wrap: break-word;
+            max-height: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 6;
+            line-clamp: 6;
+            -webkit-box-orient: vertical;
+        }
+
+        .notebook-item .timestamp {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .no-notes {
+            text-align: center;
+            color: #9D9D9D;
+            font-style: italic;
+            padding: 40px 20px;
+        }
+
+        .notebook-indicators {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 24px;
+        }
+
+        .indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #D9D9D9;
+        }
+
+        .indicator.active {
+            background: #A88DCB;
+        }
+
+        .notebook-bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 428px;
+            height: 88px;
+            background: #FFFFFF;
+            border-radius: 30px 30px 0 0;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            gap: 100px;
+            z-index: 10001;
+        }
+
+        .notebook-bottom-bar.show {
+            display: flex;
+        }
+
+        .notebook-tab {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .notebook-tab.active .tab-icon {
+            filter: brightness(0) saturate(100%) invert(67%) sepia(15%) saturate(1200%) hue-rotate(240deg) brightness(0.8) contrast(0.8);
+        }
+
+        .tab-icon {
+            width: 30px;
+            height: 30px;
+            object-fit: contain;
+        }
+
+        /* 删除选择界面样式 */
+        .delete-title {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .delete-title h3 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            font-size: 18px;
+            color: #000000;
+            margin: 0;
+        }
+
+        .notebook-item.selectable {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .note-checkbox {
+            margin-top: 5px;
+        }
+
+        .note-checkbox input[type="checkbox"] {
+            display: none;
+        }
+
+        .note-checkbox label {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #757575;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .note-checkbox input[type="checkbox"]:checked + label {
+            background: #A88DCB;
+            border-color: #A88DCB;
+        }
+
+        .note-checkbox input[type="checkbox"]:checked + label::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .delete-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .cancel-delete-btn, .confirm-delete-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .cancel-delete-btn {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .cancel-delete-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .confirm-delete-btn {
+            background: #ff4444;
+            color: white;
+        }
+
+        .confirm-delete-btn:hover {
+            background: #cc3333;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部导航栏 -->
+        <div class="top-button-bar" id="topBar">
+            <div class="top-nav-content">
+                <div class="back-button" onclick="goBack()">
+                    <img src="../images/Vector.svg" width="19" height="16" alt="返回">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Oliver Twist</div>
+                    <div class="book-author">Charles Dickens</div>
+                </div>
+                <div class="menu-button" onclick="showRecording()">
+                    <div class="menu-dot"></div>
+                    <div class="menu-dot"></div>
+                    <div class="menu-dot"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 阅读内容区域 -->
+        <div class="reading-content" id="readingContent">
+            <div class="text-content" id="textContent">
+                <!-- 这里将插入长文本内容 -->
+            </div>
+            
+            
+            <!-- 导出数据按钮 -->
+            <div style="position: fixed; top: 300px; left: 20px; z-index: 9999; background: #4ECDC4; color: white; padding: 10px; border-radius: 5px; cursor: pointer; font-size: 12px;" onclick="exportUserData()">
+                导出数据
+            </div>
+            
+            
+            <!-- 进度弹窗 -->
+            <div id="progressModal" style="position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%); width: 428px; height: 200px; background: white; border-radius: 30px 30px 0 0; z-index: 10002; visibility: hidden; opacity: 0; box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.2); transition: all 0.3s ease;">
+                <!-- 进度弹窗内容 -->
+                <div style="padding: 20px; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+                    <!-- 顶部区域：阅读时间和进度 -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <!-- 阅读时间 -->
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <div id="readingHours" style="font-size: 20px; font-weight: 600; color: #000000;">0</div>
+                            <div style="font-size: 12px; font-weight: 400; color: #9D9D9D;">Hour</div>
+                            <div id="readingMinutes" style="font-size: 20px; font-weight: 600; color: #000000;">0</div>
+                            <div style="font-size: 12px; font-weight: 400; color: #9D9D9D;">min</div>
+                        </div>
+                        
+                        <!-- 分隔线 -->
+                        <div style="width: 1px; height: 30px; background: #E0E0E0;"></div>
+                        
+                        <!-- 阅读进度 -->
+                        <div style="display: flex; align-items: center; gap: 2px;">
+                            <div id="readingProgress" style="font-size: 20px; font-weight: 600; color: #333333;">0</div>
+                            <div style="font-size: 14px; font-weight: 400; color: #9D9D9D;">%</div>
+                        </div>
+                        
+                        <!-- 分隔线 -->
+                        <div style="width: 1px; height: 30px; background: #E0E0E0;"></div>
+                        
+                        <!-- 一周阅读频次（7个柱状图） -->
+                        <div id="weeklyBars" style="display: flex; align-items: flex-end; gap: 6px;">
+                            <div style="width: 3px; height: 8px; background: #19191B; border-radius: 2px;"></div>
+                            <div style="width: 3px; height: 12px; background: #19191B; border-radius: 2px;"></div>
+                            <div style="width: 3px; height: 6px; background: #19191B; border-radius: 2px;"></div>
+                            <div style="width: 3px; height: 14px; background: #19191B; border-radius: 2px;"></div>
+                            <div style="width: 3px; height: 18px; background: #19191B; border-radius: 2px;"></div>
+                            <div style="width: 3px; height: 10px; background: #19191B; border-radius: 2px;"></div>
+                            <div style="width: 3px; height: 16px; background: #19191B; border-radius: 2px;"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 中间进度条 -->
+                    <div style="position: relative; width: 100%; height: 20px; margin-bottom: 15px;">
+                        <!-- 进度条背景 -->
+                        <div style="width: 100%; height: 20px; background: #EEEEEE; border-radius: 32px; position: relative;">
+                            <!-- 进度条填充 -->
+                            <div id="progressFill" style="width: 0%; height: 20px; background: #D9D9D9; border-radius: 32px; position: absolute; top: 0; left: 0;"></div>
+                            <!-- 进度条拖拽点 -->
+                            <div id="progressHandle" style="width: 28px; height: 28px; background: white; border-radius: 50%; position: absolute; top: -4px; left: -14px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); cursor: pointer; border: 3px solid #D9D9D9;"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 底部导航栏 -->
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 100px; padding-top: 10px; border-top: 1px solid #F0F0F0;">
+                        <!-- 笔记本图标 -->
+                        <div style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="switchToNotebook(this)">
+                            <img src="../images/notebook.svg" width="30" height="30" alt="notebook" style="filter: grayscale(1);">
+                        </div>
+                        
+                        <!-- 进度图标 -->
+                        <div style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="switchToProcessing(this)">
+                            <img src="../images/processing.svg" width="30" height="30" alt="processing" style="filter: hue-rotate(240deg) saturate(2);">
+                        </div>
+                        
+                        <!-- 亮度图标 -->
+                        <div style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="switchToLight(this)">
+                            <img src="../images/light.svg" width="30" height="30" alt="light" style="filter: grayscale(1);">
+                        </div>
+                    </div>
+                </div>
+            </div>
+             
+            <div id="simpleRecordingModal" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 240px; height: 320px; background: white; color: black; display: none; visibility: hidden; opacity: 0; z-index: 10002; padding: 20px; border-radius: 15px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);">
+                <h3 style="text-align: center; margin-bottom: 20px;">Recording</h3>
+                <div style="margin-bottom: 15px;">
+                    <div style="background: #EAEAEA; padding: 5px 15px; border-radius: 15px; text-align: center; margin-bottom: 10px; font-size: 12px;">Reading Time</div>
+                    <div style="display: flex; gap: 20px; justify-content: center;">
+                        <div style="display: flex; align-items: flex-end; gap: 5px;">
+                            <div style="width: 42px; height: 28px; border: 1px solid #A88DCB; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px;" id="simpleReadingHours">0</div>
+                            <div style="font-size: 13px;">Hour</div>
+                        </div>
+                        <div style="display: flex; align-items: flex-end; gap: 5px;">
+                            <div style="width: 42px; height: 28px; border: 1px solid #A88DCB; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px;" id="simpleReadingMinutes">0</div>
+                            <div style="font-size: 13px;">Min</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <div style="background: #EAEAEA; padding: 5px 15px; border-radius: 15px; text-align: center; margin-bottom: 10px; font-size: 12px;">Number of Exits</div>
+                    <div style="display: flex; justify-content: center;">
+                        <div style="display: flex; align-items: flex-end; gap: 5px;">
+                            <div style="width: 42px; height: 28px; border: 1px solid #A88DCB; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px;" id="simpleExitCount">0</div>
+                            <div style="font-size: 13px;">Times</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <div style="background: #EAEAEA; padding: 5px 15px; border-radius: 15px; text-align: center; margin-bottom: 10px; font-size: 12px;">Number of strokes</div>
+                    <div style="display: flex; justify-content: center;">
+                        <div style="display: flex; align-items: flex-end; gap: 5px;">
+                            <div style="width: 42px; height: 28px; border: 1px solid #A88DCB; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px;" id="simpleHighlightCount">0</div>
+                            <div style="font-size: 13px;">Items</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+           
+
+        <!-- Recording统计弹窗 - 根据Figma设计 -->
+        <div class="stats-modal" id="statsModal">
+            <div class="stats-header">Recording</div>
+            
+            <div class="stats-section reading-time">
+                <div class="stats-label">Reading Time</div>
+                <div class="stats-value">
+                    <div>
+                        <div class="stats-display" id="readingHours">0</div>
+                        <div class="stats-unit">Hour</div>
+                    </div>
+                    <div>
+                        <div class="stats-display" id="readingMinutes">0</div>
+                        <div class="stats-unit">Min</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stats-section exit-count">
+                <div class="stats-label">Number of Exits</div>
+                <div class="stats-value">
+                    <div>
+                        <div class="stats-display" id="exitCount">0</div>
+                        <div class="stats-unit">Times</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stats-section stroke-count">
+                <div class="stats-label">Number of strokes</div>
+                <div class="stats-value">
+                    <div>
+                        <div class="stats-display" id="highlightCount">0</div>
+                        <div class="stats-unit">Items</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 笔记本弹窗 -->
+        <div class="notebook-modal" id="notebookModal">
+            <div class="notebook-container">
+                <!-- 顶部标题栏 -->
+                <div class="notebook-header">
+                    <button class="back-btn" onclick="closeNotebook()">
+                        <img src="../images/Vector.svg" alt="返回" class="back-icon">
+                    </button>
+                    <div class="notebook-title-bg">
+                        <span class="notebook-title">My Notes</span>
+                    </div>
+                    <button class="delete-btn" onclick="deleteAllNotes()">
+                        <img src="../images/delete.png" alt="删除" class="delete-icon">
+                    </button>
+                </div>
+                
+                <!-- 笔记内容区域 -->
+                <div class="notebook-content" id="notebookContent">
+                    <!-- 笔记内容将在这里显示 -->
+                </div>
+                
+                <!-- 底部指示器 -->
+                <div class="notebook-indicators">
+                    <div class="indicator active" onclick="goToPage(0)"></div>
+                    <div class="indicator" onclick="goToPage(1)"></div>
+                    <div class="indicator" onclick="goToPage(2)"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 底部标签栏 - 覆盖在弹窗上面 -->
+        <div class="notebook-bottom-bar" id="notebookBottomBar">
+            <div class="notebook-tab active">
+                <img src="../images/notebook.svg" alt="笔记本" class="tab-icon">
+            </div>
+            <div class="notebook-tab">
+                <img src="../images/processing.svg" alt="进度" class="tab-icon">
+            </div>
+            <div class="notebook-tab">
+                <img src="../images/light.svg" alt="亮度" class="tab-icon">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量定义
+        let readingTime = 0;
+        let exitCount = 0;
+        let totalStrokes = 0;
+        let startTime = Date.now();
+        let highlightedElements = []; // 存储所有划线元素的信息
+        let currentPage = 0; // 当前页码
+        let notesPerPage = 3; // 每页显示的笔记数量
+        
+        // 文本选择相关变量
+        let isSelectingText = false;
+        let selectionStartElement = null;
+        let selectionEndElement = null;
+        let highlightTimer = null;
+        let isLongPressing = false;
+        
+        // 取消长按计时
+        function cancelHighlightTimer() {
+            if (highlightTimer) {
+                clearTimeout(highlightTimer);
+                highlightTimer = null;
+            }
+            isLongPressing = false;
+        }
+        
+        // 长按开始计时 - 支持触摸和鼠标
+        function startHighlightTimer(e) {
+            // 长按功能已删除，使用网页端自带的长按选中
+        }
+        
+        // 启用网页端自带文本选择功能
+        function enableNativeTextSelection() {
+            // 监听文本选择事件
+            document.addEventListener('selectionchange', function() {
+                const selection = window.getSelection();
+                const selectedText = selection.toString().trim();
+                
+                if (selectedText && selectedText.length > 0) {
+                    showSelectionMenu(selection);
+                } else {
+                    hideSelectionMenu();
+                }
+            });
+            
+            // 添加点击事件监听，防止选择菜单点击时触发灰色遮罩
+            document.addEventListener('click', function(e) {
+                // 如果点击的是选择菜单，阻止事件传播
+                if (e.target.closest('#native-selection-menu')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            }, true); // 使用捕获阶段
+        }
+        
+        // 显示选择菜单
+        function showSelectionMenu(selection) {
+            // 移除已存在的菜单
+            hideSelectionMenu();
+            
+            // 获取选择范围
+            const range = selection.getRangeAt(0);
+            const rect = range.getBoundingClientRect();
+            
+            // 创建操作菜单
+            const actionMenu = document.createElement('div');
+            actionMenu.id = 'native-selection-menu';
+            actionMenu.style.cssText = `
+                position: fixed;
+                top: ${rect.top - 50}px;
+                left: ${rect.left + rect.width / 2}px;
+                transform: translateX(-50%);
+                background: rgba(0, 0, 0, 0.9);
+                border-radius: 8px;
+                padding: 8px 0;
+                z-index: 10003;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                min-width: 120px;
+            `;
+            
+            actionMenu.innerHTML = `
+                <div class="menu-item" style="
+                    padding: 8px 16px;
+                    color: white;
+                    cursor: pointer;
+                    font-size: 14px;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                    transition: background-color 0.2s ease;
+                " data-action="add-to-notes">添加到笔记</div>
+                <div class="menu-item" style="
+                    padding: 8px 16px;
+                    color: white;
+                    cursor: pointer;
+                    font-size: 14px;
+                    transition: background-color 0.2s ease;
+                " data-action="cancel">取消</div>
+            `;
+            
+            // 添加菜单项悬停效果
+            const menuItems = actionMenu.querySelectorAll('.menu-item');
+            menuItems.forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                });
+                item.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = 'transparent';
+                });
+            });
+            
+            // 菜单项点击事件
+            actionMenu.addEventListener('click', function(e) {
+                // 阻止事件冒泡，避免触发单击事件
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const action = e.target.getAttribute('data-action');
+                const selectedText = window.getSelection().toString().trim();
+                
+                if (action === 'add-to-notes' && selectedText) {
+                    addToNotesFromSelection(selectedText, selection);
+                    hideSelectionMenu();
+                } else if (action === 'cancel') {
+                    hideSelectionMenu();
+                }
+            });
+            
+            document.body.appendChild(actionMenu);
+        }
+        
+        // 隐藏选择菜单
+        function hideSelectionMenu() {
+            const existingMenu = document.getElementById('native-selection-menu');
+            if (existingMenu) {
+                existingMenu.remove();
+            }
+        }
+        
+        // 从选择添加到笔记
+        function addToNotesFromSelection(selectedText, selection) {
+            // 先保存到笔记数据库
+            saveToNotesDatabase(selectedText);
+            
+            // 创建高亮效果
+            const range = selection.getRangeAt(0);
+            const span = document.createElement('span');
+            span.className = 'highlighted';
+            span.style.cssText = `
+                background-color: #FFEB3B;
+                padding: 2px 4px;
+                border-radius: 3px;
+                cursor: pointer;
+                display: inline-block;
+                margin: 2px 0;
+            `;
+            
+            // 设置高亮文本内容
+            span.textContent = selectedText;
+            
+            try {
+                // 尝试使用surroundContents
+                range.surroundContents(span);
+            } catch (error) {
+                try {
+                    // 备选方案：使用extractContents和insertNode
+                    const contents = range.extractContents();
+                    span.appendChild(contents);
+                    range.insertNode(span);
+                } catch (error2) {
+                    // 最后的备选方案：直接替换文本内容
+                    const parentElement = range.commonAncestorContainer.parentElement || range.commonAncestorContainer;
+                    if (parentElement && parentElement.textContent) {
+                        const originalText = parentElement.textContent;
+                        const newText = originalText.replace(selectedText, span.outerHTML);
+                        parentElement.innerHTML = newText;
+                    }
+                }
+            }
+            
+            // 清除选择
+            selection.removeAllRanges();
+            
+            // 确保菜单被隐藏
+            hideSelectionMenu();
+            
+        }
+        
+        
+        // 取消选择（已删除自定义选择功能）
+        function cancelSelection() {
+            // 取消选择功能已删除
+        }
+        
+        // 保存到笔记数据库
+        function saveToNotesDatabase(text) {
+            // 创建笔记记录
+            const noteRecord = {
+                id: Date.now(),
+                text: text,
+                timestamp: new Date().toLocaleString(),
+                page: 'bookNormal',
+                type: 'highlight'
+            };
+            
+            // 获取现有笔记
+            let notes = JSON.parse(localStorage.getItem('notes') || '[]');
+            
+            // 添加新笔记
+            notes.push(noteRecord);
+            
+            // 保存到localStorage
+            localStorage.setItem('notes', JSON.stringify(notes));
+            
+            // 更新recording页面的划线计数
+            updateRecordingStrokes();
+        }
+        
+        // 更新recording页面的划线计数
+        function updateRecordingStrokes() {
+            const notes = JSON.parse(localStorage.getItem('notes') || '[]');
+            const strokesCount = notes.length;
+            
+            // 更新recording页面显示
+            const strokesElement = document.querySelector('.recording-strokes .recording-number');
+            if (strokesElement) {
+                strokesElement.textContent = strokesCount;
+            }
+        }
+        
+        // 完整数据库系统
+        class UserBehaviorDatabase {
+            constructor() {
+                this.dbName = 'ebookReadingDatabase';
+                this.version = '1.0';
+                this.initDatabase();
+            }
+            
+            initDatabase() {
+                // 初始化数据库结构
+                if (!localStorage.getItem(this.dbName)) {
+                    const initialData = {
+                        version: this.version,
+                        users: {},
+                        sessions: {},
+                        highlights: {},
+                        statistics: {},
+                        exports: []
+                    };
+                    localStorage.setItem(this.dbName, JSON.stringify(initialData));
+                    console.log('💾 数据库已初始化');
+                }
+            }
+            
+            getCurrentUser() {
+                return localStorage.getItem('currentUserId') || 'anonymous';
+            }
+            
+            getCurrentSession() {
+                return localStorage.getItem('userSessionStart') || new Date().toISOString();
+            }
+            
+            // 保存用户行为记录
+            saveBehavior(action, data) {
+                try {
+                    const userId = this.getCurrentUser();
+                    const sessionId = this.getCurrentSession();
+                    const timestamp = new Date().toISOString();
+                    
+                    const record = {
+                        id: this.generateId(),
+                        userId: userId,
+                        sessionId: sessionId,
+                        action: action,
+                        data: data,
+                        timestamp: timestamp,
+                        page: 'book_normal'
+                    };
+                    
+                    // 获取数据库
+                    const db = JSON.parse(localStorage.getItem(this.dbName));
+                    
+                    // 初始化用户记录
+                    if (!db.users[userId]) {
+                        db.users[userId] = {
+                            userId: userId,
+                            totalSessions: 0,
+                            totalHighlights: 0,
+                            totalReadingTime: 0,
+                            totalExits: 0,
+                            createdAt: timestamp,
+                            lastActive: timestamp
+                        };
+                    }
+                    
+                    // 初始化会话记录
+                    if (!db.sessions[sessionId]) {
+                        db.sessions[sessionId] = {
+                            sessionId: sessionId,
+                            userId: userId,
+                            startTime: sessionId,
+                            endTime: null,
+                            highlights: [],
+                            readingTime: 0,
+                            exits: 0,
+                            strokes: 0
+                        };
+                        db.users[userId].totalSessions++;
+                    }
+                    
+                    // 根据行为类型处理数据
+                    switch (action) {
+                        case 'highlight':
+                            this.saveHighlight(db, record);
+                            break;
+                        case 'delete_highlight':
+                            this.deleteHighlight(db, record);
+                            break;
+                        case 'batch_delete_highlights':
+                            this.batchDeleteHighlights(db, record);
+                            break;
+                        case 'reading_time_update':
+                            this.updateReadingTime(db, record);
+                            break;
+                        case 'page_exit':
+                            this.recordPageExit(db, record);
+                            break;
+                        default:
+                            // 通用记录保存
+                            if (!db.statistics[userId]) {
+                                db.statistics[userId] = [];
+                            }
+                            db.statistics[userId].push(record);
+                    }
+                    
+                    // 更新用户最后活跃时间
+                    db.users[userId].lastActive = timestamp;
+                    
+                    // 保存数据库
+                    localStorage.setItem(this.dbName, JSON.stringify(db));
+                    
+                    console.log('💾 已保存到数据库:', action, data);
+                    return record.id;
+                } catch (error) {
+                    console.error('❌ 保存到数据库失败:', error);
+                    return null;
+                }
+            }
+            
+            // 保存划线记录
+            saveHighlight(db, record) {
+                const userId = record.userId;
+                const sessionId = record.sessionId;
+                
+                // 保存到highlights表
+                if (!db.highlights[userId]) {
+                    db.highlights[userId] = [];
+                }
+                db.highlights[userId].push(record);
+                
+                // 更新用户统计
+                db.users[userId].totalHighlights++;
+                
+                // 更新会话统计
+                db.sessions[sessionId].highlights.push(record.id);
+                db.sessions[sessionId].strokes++;
+            }
+            
+            // 删除划线记录
+            deleteHighlight(db, record) {
+                const userId = record.userId;
+                const sessionId = record.sessionId;
+                
+                // 从highlights表中移除
+                if (db.highlights[userId]) {
+                    db.highlights[userId] = db.highlights[userId].filter(h => h.id !== record.data.originalId);
+                }
+                
+                // 更新会话统计
+                if (db.sessions[sessionId]) {
+                    db.sessions[sessionId].strokes = Math.max(0, db.sessions[sessionId].strokes - 1);
+                }
+            }
+            
+            // 批量删除划线记录
+            batchDeleteHighlights(db, record) {
+                const userId = record.userId;
+                const sessionId = record.sessionId;
+                const deletedCount = record.data.deletedCount;
+                
+                // 更新会话统计
+                if (db.sessions[sessionId]) {
+                    db.sessions[sessionId].strokes = Math.max(0, db.sessions[sessionId].strokes - deletedCount);
+                }
+            }
+            
+            // 更新阅读时间
+            updateReadingTime(db, record) {
+                const userId = record.userId;
+                const sessionId = record.sessionId;
+                
+                // 更新用户总阅读时间
+                db.users[userId].totalReadingTime = record.data.totalReadingTime;
+                
+                // 更新会话阅读时间
+                if (db.sessions[sessionId]) {
+                    db.sessions[sessionId].readingTime = record.data.sessionReadingTime;
+                }
+            }
+            
+            // 记录页面退出
+            recordPageExit(db, record) {
+                const userId = record.userId;
+                const sessionId = record.sessionId;
+                
+                // 更新用户总退出次数
+                db.users[userId].totalExits++;
+                
+                // 更新会话退出次数
+                if (db.sessions[sessionId]) {
+                    db.sessions[sessionId].exits++;
+                }
+            }
+            
+            // 生成唯一ID
+            generateId() {
+                return Date.now().toString(36) + Math.random().toString(36).substr(2);
+            }
+            
+            // 导出用户数据
+            exportUserData(userId = null) {
+                try {
+                    const targetUserId = userId || this.getCurrentUser();
+                    const db = JSON.parse(localStorage.getItem(this.dbName));
+                    
+                    const exportData = {
+                        exportId: this.generateId(),
+                        exportTime: new Date().toISOString(),
+                        userId: targetUserId,
+                        userInfo: db.users[targetUserId] || {},
+                        sessions: Object.values(db.sessions).filter(s => s.userId === targetUserId),
+                        highlights: db.highlights[targetUserId] || [],
+                        statistics: db.statistics[targetUserId] || []
+                    };
+                    
+                    // 保存导出记录
+                    db.exports.push(exportData);
+                    localStorage.setItem(this.dbName, JSON.stringify(db));
+                    
+                    console.log('📤 用户数据导出完成:', exportData);
+                    return exportData;
+                } catch (error) {
+                    console.error('❌ 导出数据失败:', error);
+                    return null;
+                }
+            }
+            
+            // 获取用户统计信息
+            getUserStats(userId = null) {
+                try {
+                    const targetUserId = userId || this.getCurrentUser();
+                    const db = JSON.parse(localStorage.getItem(this.dbName));
+                    
+                    return {
+                        user: db.users[targetUserId] || {},
+                        currentSession: db.sessions[this.getCurrentSession()] || {},
+                        totalHighlights: db.highlights[targetUserId]?.length || 0,
+                        totalExports: db.exports.filter(e => e.userId === targetUserId).length
+                    };
+                } catch (error) {
+                    console.error('❌ 获取用户统计失败:', error);
+                    return null;
+                }
+            }
+        }
+        
+        // 创建数据库实例
+        const userDB = new UserBehaviorDatabase();
+        
+        // 兼容性函数
+        function saveToDatabase(action, data) {
+            return userDB.saveBehavior(action, data);
+        }
+        
+        function loadFromDatabase() {
+            return userDB.getUserStats();
+        }
+        
+        
+        // 导出用户数据
+        function exportUserData() {
+            console.log('📤 开始导出用户数据');
+            const exportData = userDB.exportUserData();
+            if (exportData) {
+                console.log('📤 导出完成，数据:', exportData);
+                alert('数据导出完成！请查看控制台获取详细数据。');
+            } else {
+                console.log('❌ 导出失败');
+                alert('数据导出失败！');
+            }
+        }
+        
+        // 显示灰色遮罩（overlay）
+        function showOverlay() {
+            console.log('📱 显示灰色遮罩');
+            
+            // 检查是否已经有遮罩
+            const existingOverlay = document.querySelector('.overlay-mask');
+            if (existingOverlay) {
+                console.log('📱 遮罩已存在，不重复创建');
+                return;
+            }
+            
+            // 创建灰色遮罩
+            const overlay = document.createElement('div');
+            overlay.className = 'overlay-mask';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(157, 157, 157, 0.3);
+                z-index: 9998;
+                -webkit-backdrop-filter: blur(2px);
+                backdrop-filter: blur(2px);
+            `;
+            
+            // 创建底部导航栏
+            const bottomBar = document.createElement('div');
+            bottomBar.className = 'overlay-bottom-bar';
+            bottomBar.style.cssText = `
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 80px;
+                background: rgba(255, 255, 255, 0.95);
+                -webkit-backdrop-filter: blur(40%);
+                backdrop-filter: blur(40%);
+                border-radius: 30px 30px 0 0;
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                z-index: 9999;
+            `;
+            
+            // 添加导航图标
+            const icons = ['notebook', 'processing', 'light'];
+            icons.forEach((icon, index) => {
+                const iconDiv = document.createElement('div');
+                iconDiv.className = `overlay-icon ${icon}`;
+                iconDiv.style.cssText = `
+                    width: 30px;
+                    height: 30px;
+                    background: #ccc;
+                    border-radius: 50%;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: all 0.3s ease;
+                `;
+                
+                // 添加点击事件
+                iconDiv.onclick = () => {
+                    console.log(`📱 点击了${icon}图标`);
+                    if (icon === 'notebook') {
+                        // 进入文本选择模式
+                        enterTextSelectionMode();
+                    } else if (icon === 'processing') {
+                        showRecording();
+                    } else if (icon === 'light') {
+                        console.log('📱 亮度调节功能');
+                    }
+                };
+                
+                bottomBar.appendChild(iconDiv);
+            });
+            
+            // 添加点击关闭事件
+            overlay.onclick = (e) => {
+                if (e.target === overlay) {
+                    console.log('📱 点击遮罩外部，关闭遮罩');
+                    closeOverlay();
+                }
+            };
+            
+            document.body.appendChild(overlay);
+            document.body.appendChild(bottomBar);
+            
+            console.log('📱 灰色遮罩已显示');
+        }
+        
+        // 关闭灰色遮罩
+        function closeOverlay() {
+            console.log('📱 关闭灰色遮罩');
+            
+            const overlay = document.querySelector('.overlay-mask');
+            const bottomBar = document.querySelector('.overlay-bottom-bar');
+            
+            if (overlay) overlay.remove();
+            if (bottomBar) bottomBar.remove();
+            
+            console.log('📱 灰色遮罩已关闭');
+        }
+        
+        // 显示recording统计弹窗
+        
+        // 显示进度弹窗
+        function showProgressModal() {
+            console.log('📊 显示进度弹窗');
+            
+            // 检查是否在overlay模式下
+            const overlayContainer = document.querySelector('.overlay-container');
+            if (!overlayContainer) {
+                console.log('⚠️ 不在overlay模式，先打开overlay');
+                createOverlay();
+                // 等待overlay创建完成后再显示进度弹窗
+                setTimeout(() => {
+                    showProgressModalInOverlay();
+                }, 100);
+                return;
+            }
+            
+            showProgressModalInOverlay();
+        }
+        
+        // 在overlay中显示进度弹窗
+        function showProgressModalInOverlay() {
+            const progressModal = document.getElementById('progressModal');
+            if (progressModal) {
+                // 先移除可能存在的旧事件监听器
+                document.removeEventListener('click', handleProgressModalClick);
+                
+                // 设置显示状态，从底部滑入（折叠效果）
+                progressModal.style.visibility = 'visible';
+                progressModal.style.opacity = '1';
+                progressModal.style.zIndex = '10002'; // 在overlay之上
+                progressModal.style.transform = 'translateX(-50%) translateY(0)';
+                
+                // 更新阅读时间（真实数据）
+                updateRealReadingTime();
+                
+                // 更新阅读进度（实时数据）
+                updateRealReadingProgress();
+                
+                // 更新一周阅读频次（用户行为数据）
+                updateRealWeeklyReadingFrequency();
+                
+                // 初始化进度条拖拽功能（锚定原文本）
+                initProgressBarWithTextAnchor();
+                
+                // 初始化进度条位置
+                initProgressBarPosition();
+                
+                // 添加点击外部关闭功能
+                setTimeout(() => {
+                    document.addEventListener('click', handleProgressModalClick);
+                }, 100);
+            } else {
+                console.error('❌ 进度弹窗元素未找到');
+            }
+        }
+        
+        // 处理进度弹窗点击事件
+        function handleProgressModalClick(e) {
+            const progressModal = document.getElementById('progressModal');
+            if (progressModal && progressModal.style.visibility === 'visible') {
+                // 检查点击的目标
+                const target = e.target;
+                
+                // 如果点击的是弹窗本身，不关闭
+                if (progressModal.contains(target)) {
+                    return;
+                }
+                
+                // 如果点击的是底部菜单栏，不关闭
+                const bottomBar = document.querySelector('.overlay-bottom-bar');
+                if (bottomBar && bottomBar.contains(target)) {
+                    return;
+                }
+                
+                // 如果点击的是overlay的底部导航栏，不关闭
+                const overlayBottomBar = document.querySelector('.bottom-label-bar');
+                if (overlayBottomBar && overlayBottomBar.contains(target)) {
+                    return;
+                }
+                
+                // 其他情况关闭弹窗
+                console.log('📱 点击进度弹窗外部，关闭弹窗');
+                hideProgressModal();
+                // 关闭overlay，返回bookNormal页面
+                closeOverlay();
+            }
+        }
+        
+        // 隐藏进度弹窗
+        function hideProgressModal() {
+            const progressModal = document.getElementById('progressModal');
+            if (progressModal) {
+                progressModal.style.visibility = 'hidden';
+                progressModal.style.opacity = '0';
+                progressModal.style.transform = 'translateX(-50%) translateY(100%)';
+                
+                // 移除点击事件监听器
+                document.removeEventListener('click', handleProgressModalClick);
+            }
+        }
+        
+        // 更新阅读时间
+        function updateReadingTime() {
+            const readingTime = localStorage.getItem('readingTime') || 0;
+            const hours = Math.floor(readingTime / 3600);
+            const minutes = Math.floor((readingTime % 3600) / 60);
+            
+            // 更新显示
+            const timeElements = document.querySelectorAll('#progressModal div[style*="font-size: 24px"]');
+            if (timeElements.length >= 2) {
+                timeElements[0].textContent = hours;
+                timeElements[1].textContent = minutes;
+            }
+        }
+        
+        // 更新阅读进度
+        function updateReadingProgress() {
+            const totalTextLength = document.getElementById('textContent').textContent.length;
+            const currentPosition = localStorage.getItem('currentReadingPosition') || 0;
+            const progress = Math.round((currentPosition / totalTextLength) * 100);
+            
+            // 更新百分比显示
+            const progressElement = document.querySelector('#progressModal div[style*="font-size: 24px"][style*="color: #333333"]');
+            if (progressElement) {
+                progressElement.textContent = progress;
+            }
+            
+            // 更新进度条
+            const progressFill = document.getElementById('progressFill');
+            const progressHandle = document.getElementById('progressHandle');
+            if (progressFill && progressHandle) {
+                const percentage = Math.min(100, Math.max(0, progress));
+                progressFill.style.width = percentage + '%';
+                progressHandle.style.left = `calc(${percentage}% - 15px)`;
+            }
+        }
+        
+        // 更新一周阅读频次
+        function updateWeeklyReadingFrequency() {
+            const weeklyData = JSON.parse(localStorage.getItem('weeklyReadingData') || '[]');
+            const bars = document.querySelectorAll('#progressModal div[style*="width: 3px"][style*="background: #19191B"]');
+            
+            // 如果没有数据，使用默认数据
+            if (weeklyData.length === 0) {
+                const defaultHeights = [20, 5, 12, 1, 16, 12, 22];
+                bars.forEach((bar, index) => {
+                    if (index < defaultHeights.length) {
+                        bar.style.height = defaultHeights[index] + 'px';
+                    }
+                });
+                return;
+            }
+            
+            // 根据实际数据设置高度
+            bars.forEach((bar, index) => {
+                if (index < weeklyData.length) {
+                    const readingTime = weeklyData[index]; // 分钟
+                    let height;
+                    if (readingTime >= 60) {
+                        height = 20; // 超过1小时
+                    } else if (readingTime >= 10) {
+                        height = 12; // 10-60分钟
+                    } else {
+                        height = 6; // 小于10分钟
+                    }
+                    bar.style.height = height + 'px';
+                }
+            });
+        }
+        
+        // 初始化进度条拖拽功能
+        function initProgressBar() {
+            const progressHandle = document.getElementById('progressHandle');
+            const progressFill = document.getElementById('progressFill');
+            const progressContainer = progressHandle.parentElement;
+            
+            if (!progressHandle || !progressFill || !progressContainer) return;
+            
+            let isDragging = false;
+            
+            // 鼠标按下事件
+            progressHandle.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                e.preventDefault();
+            });
+            
+            // 鼠标移动事件
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                
+                const containerRect = progressContainer.getBoundingClientRect();
+                const x = e.clientX - containerRect.left;
+                const percentage = Math.max(0, Math.min(100, (x / containerRect.width) * 100));
+                
+                // 更新进度条
+                progressFill.style.width = percentage + '%';
+                progressHandle.style.left = `calc(${percentage}% - 15px)`;
+                
+                // 更新百分比显示
+                const progressElement = document.querySelector('#progressModal div[style*="font-size: 24px"][style*="color: #333333"]');
+                if (progressElement) {
+                    progressElement.textContent = Math.round(percentage);
+                }
+                
+                // 定位到对应文本位置
+                scrollToTextPosition(percentage);
+            });
+            
+            // 鼠标抬起事件
+            document.addEventListener('mouseup', function() {
+                if (isDragging) {
+                    isDragging = false;
+                    // 保存当前位置
+                    const percentage = parseFloat(progressFill.style.width);
+                    localStorage.setItem('currentReadingPosition', percentage);
+                }
+            });
+        }
+        
+        // 根据进度百分比滚动到对应文本位置
+        function scrollToTextPosition(percentage) {
+            const textContent = document.getElementById('textContent');
+            if (!textContent) return;
+            
+            const scrollHeight = textContent.scrollHeight - textContent.clientHeight;
+            const targetScrollTop = (scrollHeight * percentage) / 100;
+            
+            textContent.scrollTo({
+                top: targetScrollTop,
+                behavior: 'smooth'
+            });
+        }
+        
+        // 初始化一周阅读数据（示例数据）
+        function initWeeklyReadingData() {
+            const weeklyData = localStorage.getItem('weeklyReadingData');
+            if (!weeklyData) {
+                // 设置示例数据：7天的阅读时间（分钟）
+                const sampleData = [120, 30, 75, 5, 90, 60, 135]; // 对应设计稿中的高度
+                localStorage.setItem('weeklyReadingData', JSON.stringify(sampleData));
+            }
+        }
+        
+        // 更新当前阅读位置
+        function updateCurrentReadingPosition() {
+            const textContent = document.getElementById('textContent');
+            if (!textContent) return;
+            
+            const scrollTop = textContent.scrollTop;
+            const scrollHeight = textContent.scrollHeight - textContent.clientHeight;
+            const percentage = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+            
+            localStorage.setItem('currentReadingPosition', percentage);
+        }
+        
+        // 更新真实阅读时间
+        function updateRealReadingTime() {
+            const readingTime = localStorage.getItem('readingTime') || 0;
+            const hours = Math.floor(readingTime / 3600);
+            const minutes = Math.floor((readingTime % 3600) / 60);
+            
+            const hoursElement = document.getElementById('readingHours');
+            const minutesElement = document.getElementById('readingMinutes');
+            
+            if (hoursElement) hoursElement.textContent = hours;
+            if (minutesElement) minutesElement.textContent = minutes;
+        }
+        
+        // 更新真实阅读进度
+        function updateRealReadingProgress() {
+            const readingContent = document.getElementById('readingContent');
+            if (!readingContent) return;
+            
+            const scrollTop = readingContent.scrollTop;
+            const scrollHeight = readingContent.scrollHeight - readingContent.clientHeight;
+            const percentage = scrollHeight > 0 ? Math.round((scrollTop / scrollHeight) * 100) : 0;
+            
+            const progressElement = document.getElementById('readingProgress');
+            if (progressElement) {
+                progressElement.textContent = percentage;
+            }
+            
+            // 更新进度条
+            const progressFill = document.getElementById('progressFill');
+            const progressHandle = document.getElementById('progressHandle');
+            if (progressFill && progressHandle) {
+                progressFill.style.width = percentage + '%';
+                progressHandle.style.left = `calc(${percentage}% - 14px)`;
+            }
+            
+            // 保存当前进度到localStorage
+            localStorage.setItem('currentReadingPosition', percentage);
+        }
+        
+        // 更新真实一周阅读频次
+        function updateRealWeeklyReadingFrequency() {
+            // 获取过去7天的阅读数据
+            const weeklyData = JSON.parse(localStorage.getItem('weeklyReadingData') || '[]');
+            const bars = document.querySelectorAll('#weeklyBars div');
+            
+            // 如果没有数据，使用默认数据
+            if (weeklyData.length === 0) {
+                const defaultHeights = [8, 12, 6, 14, 18, 10, 16];
+                bars.forEach((bar, index) => {
+                    if (index < defaultHeights.length) {
+                        bar.style.height = defaultHeights[index] + 'px';
+                    }
+                });
+                return;
+            }
+            
+            // 根据实际数据设置高度
+            bars.forEach((bar, index) => {
+                if (index < weeklyData.length) {
+                    const readingTime = weeklyData[index]; // 分钟
+                    let height;
+                    if (readingTime >= 60) {
+                        height = 18; // 超过1小时
+                    } else if (readingTime >= 10) {
+                        height = 12; // 10-60分钟
+                    } else {
+                        height = 6; // 小于10分钟
+                    }
+                    bar.style.height = height + 'px';
+                }
+            });
+        }
+        
+        // 初始化进度条拖拽功能（锚定原文本）
+        function initProgressBarWithTextAnchor() {
+            const progressHandle = document.getElementById('progressHandle');
+            const progressFill = document.getElementById('progressFill');
+            const progressContainer = progressHandle.parentElement;
+            
+            if (!progressHandle || !progressFill || !progressContainer) return;
+            
+            let isDragging = false;
+            
+            // 鼠标按下事件
+            progressHandle.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                e.preventDefault();
+            });
+            
+            // 鼠标移动事件
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                
+                const containerRect = progressContainer.getBoundingClientRect();
+                const x = e.clientX - containerRect.left;
+                const percentage = Math.max(0, Math.min(100, (x / containerRect.width) * 100));
+                
+                // 更新进度条
+                progressFill.style.width = percentage + '%';
+                progressHandle.style.left = `calc(${percentage}% - 14px)`;
+                
+                // 更新百分比显示
+                const progressElement = document.getElementById('readingProgress');
+                if (progressElement) {
+                    progressElement.textContent = Math.round(percentage);
+                }
+                
+                // 锚定到原文本位置
+                anchorToTextPosition(percentage);
+            });
+            
+            // 鼠标抬起事件
+            document.addEventListener('mouseup', function() {
+                if (isDragging) {
+                    isDragging = false;
+                    // 保存当前位置
+                    const percentage = parseFloat(progressFill.style.width);
+                    localStorage.setItem('currentReadingPosition', percentage);
+                }
+            });
+            
+            // 点击进度条轨道也可以跳转
+            progressContainer.addEventListener('click', function(e) {
+                if (e.target === progressContainer || e.target === progressFill) {
+                    const containerRect = progressContainer.getBoundingClientRect();
+                    const x = e.clientX - containerRect.left;
+                    const percentage = Math.max(0, Math.min(100, (x / containerRect.width) * 100));
+                    
+                    // 更新进度条
+                    progressFill.style.width = percentage + '%';
+                    progressHandle.style.left = `calc(${percentage}% - 14px)`;
+                    
+                    // 更新百分比显示
+                    const progressElement = document.getElementById('readingProgress');
+                    if (progressElement) {
+                        progressElement.textContent = Math.round(percentage);
+                    }
+                    
+                    // 锚定到原文本位置
+                    anchorToTextPosition(percentage);
+                    
+                    // 保存当前位置
+                    localStorage.setItem('currentReadingPosition', percentage);
+                }
+            });
+        }
+        
+        // 锚定到文本位置
+        function anchorToTextPosition(percentage) {
+            // 使用readingContent作为主要滚动容器
+            const readingContent = document.getElementById('readingContent');
+            
+            if (!readingContent) {
+                console.warn('未找到readingContent容器');
+                return;
+            }
+            
+            const scrollHeight = readingContent.scrollHeight - readingContent.clientHeight;
+            const targetScrollTop = (scrollHeight * percentage) / 100;
+            
+            console.log(`📖 跳转到文本位置: ${percentage}% (${targetScrollTop}px)`);
+            console.log(`📖 容器信息: scrollHeight=${readingContent.scrollHeight}, clientHeight=${readingContent.clientHeight}, 可滚动高度=${scrollHeight}`);
+            
+            readingContent.scrollTo({
+                top: targetScrollTop,
+                behavior: 'smooth'
+            });
+        }
+        
+        // 初始化进度条位置
+        function initProgressBarPosition() {
+            // 使用readingContent作为主要滚动容器
+            const readingContent = document.getElementById('readingContent');
+            
+            if (!readingContent) {
+                console.warn('未找到readingContent容器，无法初始化进度条位置');
+                return;
+            }
+            
+            const scrollTop = readingContent.scrollTop;
+            const scrollHeight = readingContent.scrollHeight - readingContent.clientHeight;
+            const percentage = scrollHeight > 0 ? Math.round((scrollTop / scrollHeight) * 100) : 0;
+            
+            console.log(`📊 初始化进度条位置: ${percentage}%`);
+            console.log(`📊 容器信息: scrollTop=${scrollTop}, scrollHeight=${readingContent.scrollHeight}, clientHeight=${readingContent.clientHeight}, 可滚动高度=${scrollHeight}`);
+            
+            // 更新进度条显示
+            const progressFill = document.getElementById('progressFill');
+            const progressHandle = document.getElementById('progressHandle');
+            const progressElement = document.getElementById('readingProgress');
+            
+            if (progressFill && progressHandle) {
+                progressFill.style.width = percentage + '%';
+                progressHandle.style.left = `calc(${percentage}% - 14px)`;
+            }
+            
+            if (progressElement) {
+                progressElement.textContent = percentage;
+            }
+        }
+        
+        // 初始化界面停留时间记录
+        function initPageStayTime() {
+            // 记录页面进入时间
+            const pageEnterTime = Date.now();
+            localStorage.setItem('pageEnterTime', pageEnterTime);
+            
+            console.log('⏰ 开始记录界面停留时间，页面进入时间:', new Date(pageEnterTime).toLocaleTimeString());
+            
+            // 初始化退出记录功能
+            initExitTracking();
+            
+            // 每秒更新一次停留时间
+            const timeInterval = setInterval(() => {
+                const currentTime = Date.now();
+                const stayTime = Math.floor((currentTime - pageEnterTime) / 1000); // 秒
+                
+                // 更新reading time
+                localStorage.setItem('readingTime', stayTime);
+                
+                // 更新processing弹窗中的时间显示
+                updateRealReadingTime();
+                
+                // 更新recording弹窗中的时间显示
+                updateRecordingReadingTime();
+                
+            }, 1000);
+            
+            // 页面卸载时保存最终时间
+            window.addEventListener('beforeunload', function() {
+                const finalTime = Math.floor((Date.now() - pageEnterTime) / 1000);
+                localStorage.setItem('readingTime', finalTime);
+                clearInterval(timeInterval);
+            });
+        }
+        
+        // 初始化退出跟踪功能
+        function initExitTracking() {
+            let isPageVisible = true;
+            let exitStartTime = null;
+            let exitCount = parseInt(localStorage.getItem('exitCount') || '0');
+            let isTrackingExit = false; // 防止重复计数
+            let isInitialLoad = true; // 标记是否为初始加载
+            
+            console.log('📱 初始化页面退出跟踪功能，当前退出次数:', exitCount);
+            
+            // 将变量保存到全局作用域，确保在beforeunload事件中能访问
+            window.exitTrackingState = {
+                isPageVisible,
+                exitStartTime,
+                exitCount,
+                isTrackingExit,
+                isInitialLoad
+            };
+            
+            // 延迟启动退出跟踪，避免页面加载时的误触发
+            setTimeout(() => {
+                isInitialLoad = false;
+                window.exitTrackingState.isInitialLoad = false; // 同步更新全局状态
+                console.log('📱 退出跟踪已激活，开始监听页面状态');
+            }, 1000); // 1秒后激活
+            
+            // 页面可见性变化事件
+            document.addEventListener('visibilitychange', function() {
+                console.log('📱 页面可见性变化:', document.visibilityState);
+                console.log('📱 当前状态:', { isPageVisible, isTrackingExit, isInitialLoad, exitStartTime: exitStartTime ? new Date(exitStartTime).toLocaleTimeString() : null });
+                
+                if (document.hidden) {
+                    // 页面被隐藏（用户切换到其他应用或页面导航）
+                    if (isPageVisible && !isTrackingExit && !isInitialLoad) {
+                        isPageVisible = false;
+                        isTrackingExit = true;
+                        exitStartTime = Date.now();
+                        console.log('📱 页面失去焦点，开始记录退出时间，时间戳:', new Date(exitStartTime).toLocaleTimeString());
+                        
+                        // 更新全局状态
+                        window.exitTrackingState.isPageVisible = isPageVisible;
+                        window.exitTrackingState.isTrackingExit = isTrackingExit;
+                        window.exitTrackingState.exitStartTime = exitStartTime;
+                    } else {
+                        console.log('📱 不满足失去焦点记录条件:', { isPageVisible, isTrackingExit, isInitialLoad });
+                    }
+                } else {
+                    // 页面重新可见
+                    if (!isPageVisible && exitStartTime && isTrackingExit) {
+                        isPageVisible = true;
+                        isTrackingExit = false;
+                        const exitDuration = Math.floor((Date.now() - exitStartTime) / 1000);
+                        
+                        console.log(`📱 页面重新获得焦点，退出时长: ${exitDuration}秒`);
+                        
+                        // 只有退出时长大于1秒才记录（避免误触发）
+                        if (exitDuration >= 1) {
+                            exitCount++;
+                            
+                            // 记录退出信息
+                            const exitRecord = {
+                                timestamp: new Date().toISOString(),
+                                duration: exitDuration,
+                                exitNumber: exitCount,
+                                exitStartTime: new Date(exitStartTime).toISOString(),
+                                exitEndTime: new Date().toISOString()
+                            };
+                            
+                            // 保存退出记录
+                            let exitHistory = JSON.parse(localStorage.getItem('exitHistory') || '[]');
+                            exitHistory.push(exitRecord);
+                            localStorage.setItem('exitHistory', JSON.stringify(exitHistory));
+                            localStorage.setItem('exitCount', exitCount.toString());
+                            
+                            console.log(`📱 记录退出，总退出次数: ${exitCount}`);
+                            console.log('📱 退出记录详情:', exitRecord);
+                            
+                            // 更新recording弹窗中的退出次数显示
+                            updateRecordingExitCount();
+                        } else {
+                            console.log(`📱 退出时长过短(${exitDuration}秒)，不记录退出`);
+                        }
+                        
+                        exitStartTime = null;
+                        
+                        // 更新全局状态
+                        window.exitTrackingState.isPageVisible = isPageVisible;
+                        window.exitTrackingState.isTrackingExit = isTrackingExit;
+                        window.exitTrackingState.exitStartTime = exitStartTime;
+                        window.exitTrackingState.exitCount = exitCount;
+                    } else {
+                        console.log('📱 不满足重新获得焦点记录条件:', { isPageVisible, exitStartTime: exitStartTime ? new Date(exitStartTime).toLocaleTimeString() : null, isTrackingExit });
+                    }
+                }
+            });
+            
+            // 页面卸载事件（检测页面导航）
+            window.addEventListener('beforeunload', function() {
+                const state = window.exitTrackingState;
+                console.log('📱 页面即将卸载，检查退出状态:', { 
+                    isTrackingExit: state.isTrackingExit, 
+                    exitStartTime: state.exitStartTime ? new Date(state.exitStartTime).toLocaleTimeString() : null,
+                    isInitialLoad: state.isInitialLoad
+                });
+                
+                if (state.isTrackingExit && state.exitStartTime && !state.isInitialLoad) {
+                    const exitDuration = Math.floor((Date.now() - state.exitStartTime) / 1000);
+                    console.log(`📱 页面卸载，退出时长: ${exitDuration}秒`);
+                    
+                    if (exitDuration >= 1) {
+                        const newExitCount = state.exitCount + 1;
+                        
+                        // 记录退出信息
+                        const exitRecord = {
+                            timestamp: new Date().toISOString(),
+                            duration: exitDuration,
+                            exitNumber: newExitCount,
+                            exitStartTime: new Date(state.exitStartTime).toISOString(),
+                            exitEndTime: new Date().toISOString(),
+                            reason: 'page_unload'
+                        };
+                        
+                        // 保存退出记录
+                        let exitHistory = JSON.parse(localStorage.getItem('exitHistory') || '[]');
+                        exitHistory.push(exitRecord);
+                        localStorage.setItem('exitHistory', JSON.stringify(exitHistory));
+                        localStorage.setItem('exitCount', newExitCount.toString());
+                        
+                        console.log(`📱 页面卸载记录退出，总退出次数: ${newExitCount}`);
+                        console.log('📱 页面卸载退出记录详情:', exitRecord);
+                    } else {
+                        console.log(`📱 页面卸载退出时长过短(${exitDuration}秒)，不记录退出`);
+                    }
+                } else {
+                    console.log('📱 页面卸载时未在跟踪退出状态或仍在初始加载中');
+                }
+            });
+            
+            
+            // 页面隐藏事件（检测页面导航的备用方案）
+            window.addEventListener('pagehide', function() {
+                const state = window.exitTrackingState;
+                console.log('📱 页面隐藏，检查退出状态:', { 
+                    isTrackingExit: state.isTrackingExit, 
+                    exitStartTime: state.exitStartTime ? new Date(state.exitStartTime).toLocaleTimeString() : null,
+                    isInitialLoad: state.isInitialLoad
+                });
+                
+                if (state.isTrackingExit && state.exitStartTime && !state.isInitialLoad) {
+                    const exitDuration = Math.floor((Date.now() - state.exitStartTime) / 1000);
+                    console.log(`📱 页面隐藏，退出时长: ${exitDuration}秒`);
+                    
+                    if (exitDuration >= 1) {
+                        const newExitCount = state.exitCount + 1;
+                        
+                        // 记录退出信息
+                        const exitRecord = {
+                            timestamp: new Date().toISOString(),
+                            duration: exitDuration,
+                            exitNumber: newExitCount,
+                            exitStartTime: new Date(state.exitStartTime).toISOString(),
+                            exitEndTime: new Date().toISOString(),
+                            reason: 'page_hide'
+                        };
+                        
+                        // 保存退出记录
+                        let exitHistory = JSON.parse(localStorage.getItem('exitHistory') || '[]');
+                        exitHistory.push(exitRecord);
+                        localStorage.setItem('exitHistory', JSON.stringify(exitHistory));
+                        localStorage.setItem('exitCount', newExitCount.toString());
+                        
+                        console.log(`📱 页面隐藏记录退出，总退出次数: ${newExitCount}`);
+                        console.log('📱 页面隐藏退出记录详情:', exitRecord);
+                    } else {
+                        console.log(`📱 页面隐藏退出时长过短(${exitDuration}秒)，不记录退出`);
+                    }
+                } else {
+                    console.log('📱 页面隐藏时未在跟踪退出状态或仍在初始加载中');
+                }
+            });
+        }
+        
+        // 更新recording弹窗中的退出次数显示
+        function updateRecordingExitCount() {
+            const exitCount = parseInt(localStorage.getItem('exitCount') || '0');
+            
+            console.log(`📊 更新退出次数显示: ${exitCount}`);
+            
+            // 更新statsModal中的退出次数显示
+            const statsModal = document.getElementById('statsModal');
+            if (statsModal && statsModal.style.display === 'block') {
+                const exitElement = statsModal.querySelector('#exitCount');
+                if (exitElement) {
+                    exitElement.textContent = exitCount;
+                    console.log('✅ 已更新statsModal中的退出次数');
+                } else {
+                    console.warn('⚠️ 未找到statsModal中的#exitCount元素');
+                }
+            }
+            
+            // 更新simpleRecordingModal中的退出次数显示
+            const simpleModal = document.getElementById('simpleRecordingModal');
+            if (simpleModal && simpleModal.style.display === 'block') {
+                const simpleExitElement = simpleModal.querySelector('#exitCount');
+                if (simpleExitElement) {
+                    simpleExitElement.textContent = exitCount;
+                    console.log('✅ 已更新simpleRecordingModal中的退出次数');
+                } else {
+                    console.warn('⚠️ 未找到simpleRecordingModal中的#exitCount元素');
+                }
+            }
+            
+            // 更新全局变量
+            window.exitCount = exitCount;
+        }
+        
+        
+        // 重置退出数据
+        
+        
+        
+        // 页面导航退出记录函数（全局作用域）
+        function recordPageNavigationExit() {
+            const state = window.exitTrackingState;
+            console.log('📱 页面导航退出记录，检查状态:', { 
+                isTrackingExit: state ? state.isTrackingExit : 'state不存在', 
+                exitStartTime: state && state.exitStartTime ? new Date(state.exitStartTime).toLocaleTimeString() : '无开始时间',
+                isInitialLoad: state ? state.isInitialLoad : 'state不存在',
+                state: state
+            });
+            
+            // 如果退出跟踪已经激活，使用现有的退出时长
+            if (state && state.isTrackingExit && state.exitStartTime && !state.isInitialLoad) {
+                const exitDuration = Math.floor((Date.now() - state.exitStartTime) / 1000);
+                console.log(`📱 页面导航，退出时长: ${exitDuration}秒`);
+                
+                if (exitDuration >= 1) {
+                    // 直接从localStorage读取当前退出次数
+                    const currentExitCount = parseInt(localStorage.getItem('exitCount') || '0');
+                    const newExitCount = currentExitCount + 1;
+                    
+                    console.log(`📱 当前退出次数: ${currentExitCount}, 新退出次数: ${newExitCount}`);
+                    
+                    // 记录退出信息
+                    const exitRecord = {
+                        timestamp: new Date().toISOString(),
+                        duration: exitDuration,
+                        exitNumber: newExitCount,
+                        exitStartTime: new Date(state.exitStartTime).toISOString(),
+                        exitEndTime: new Date().toISOString(),
+                        reason: 'page_navigation'
+                    };
+                    
+                    // 保存退出记录
+                    let exitHistory = JSON.parse(localStorage.getItem('exitHistory') || '[]');
+                    exitHistory.push(exitRecord);
+                    localStorage.setItem('exitHistory', JSON.stringify(exitHistory));
+                    localStorage.setItem('exitCount', newExitCount.toString());
+                    
+                    console.log(`📱 页面导航记录退出，总退出次数: ${newExitCount}`);
+                    console.log('📱 页面导航退出记录详情:', exitRecord);
+                    console.log('📱 localStorage写入后验证:', {
+                        exitCount: localStorage.getItem('exitCount'),
+                        exitHistoryLength: JSON.parse(localStorage.getItem('exitHistory') || '[]').length
+                    });
+                    
+                    return true; // 成功记录
+                } else {
+                    console.log(`📱 页面导航退出时长过短(${exitDuration}秒)，不记录退出`);
+                }
+            } 
+            // 如果退出跟踪没有激活，但页面已经加载完成，则直接记录页面导航退出
+            else if (state && !state.isInitialLoad) {
+                console.log('📱 页面导航时退出跟踪未激活，直接记录页面导航退出');
+                
+                // 直接从localStorage读取当前退出次数
+                const currentExitCount = parseInt(localStorage.getItem('exitCount') || '0');
+                const newExitCount = currentExitCount + 1;
+                
+                console.log(`📱 当前退出次数: ${currentExitCount}, 新退出次数: ${newExitCount}`);
+                
+                // 记录退出信息（使用当前时间作为退出开始和结束时间）
+                const now = Date.now();
+                const exitRecord = {
+                    timestamp: new Date().toISOString(),
+                    duration: 1, // 页面导航退出固定为1秒
+                    exitNumber: newExitCount,
+                    exitStartTime: new Date(now - 1000).toISOString(), // 1秒前
+                    exitEndTime: new Date().toISOString(),
+                    reason: 'page_navigation'
+                };
+                
+                // 保存退出记录
+                let exitHistory = JSON.parse(localStorage.getItem('exitHistory') || '[]');
+                exitHistory.push(exitRecord);
+                localStorage.setItem('exitHistory', JSON.stringify(exitHistory));
+                localStorage.setItem('exitCount', newExitCount.toString());
+                
+                console.log(`📱 页面导航直接记录退出，总退出次数: ${newExitCount}`);
+                console.log('📱 页面导航退出记录详情:', exitRecord);
+                console.log('📱 localStorage写入后验证:', {
+                    exitCount: localStorage.getItem('exitCount'),
+                    exitHistoryLength: JSON.parse(localStorage.getItem('exitHistory') || '[]').length
+                });
+                
+                return true; // 成功记录
+            } else {
+                console.log('📱 页面导航时未在跟踪退出状态或仍在初始加载中');
+                console.log('📱 详细状态检查:', {
+                    state存在: !!state,
+                    isTrackingExit: state ? state.isTrackingExit : 'N/A',
+                    exitStartTime存在: !!(state && state.exitStartTime),
+                    isInitialLoad: state ? state.isInitialLoad : 'N/A'
+                });
+            }
+            return false; // 未记录
+        }
+        
+        // 更新recording弹窗中的阅读时间
+        function updateRecordingReadingTime() {
+            const readingTime = localStorage.getItem('readingTime') || 0;
+            const hours = Math.floor(readingTime / 3600);
+            const minutes = Math.floor((readingTime % 3600) / 60);
+            
+            // 更新statsModal中的时间显示
+            const statsModal = document.getElementById('statsModal');
+            if (statsModal && statsModal.style.display === 'block') {
+                const hoursElement = statsModal.querySelector('#readingHours');
+                const minutesElement = statsModal.querySelector('#readingMinutes');
+                if (hoursElement) hoursElement.textContent = hours;
+                if (minutesElement) minutesElement.textContent = minutes;
+            }
+            
+            // 更新simpleRecordingModal中的时间显示
+            const simpleModal = document.getElementById('simpleRecordingModal');
+            if (simpleModal && simpleModal.style.display === 'block') {
+                const simpleHoursElement = simpleModal.querySelector('#simpleReadingHours');
+                const simpleMinutesElement = simpleModal.querySelector('#simpleReadingMinutes');
+                if (simpleHoursElement) simpleHoursElement.textContent = hours;
+                if (simpleMinutesElement) simpleMinutesElement.textContent = minutes;
+            }
+        }
+
+        function showRecording() {
+            console.log('📊 显示recording统计弹窗');
+            
+            // 检查是否已经有弹窗
+            const existingModal = document.getElementById('statsModal');
+            if (existingModal) {
+                console.log('📊 recording弹窗已存在，不重复创建');
+                return;
+            }
+            
+            // 设置创建标记
+            window.isCreatingModal = true;
+            
+            // 创建统计弹窗
+            const modal = document.createElement('div');
+            modal.id = 'statsModal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 350px;
+                height: 400px;
+                background: white;
+                border-radius: 20px;
+                z-index: 10000;
+                display: block;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                padding: 20px;
+            `;
+            
+            modal.innerHTML = `
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h3 style="color: #333; margin-bottom: 20px;">阅读统计</h3>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f5f5f5; border-radius: 8px;">
+                        <span style="color: #666;">阅读时长</span>
+                        <span class="stats-value" style="color: #333; font-weight: bold;">${Math.floor(readingTime / 60)}小时${readingTime % 60}分钟</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f5f5f5; border-radius: 8px;">
+                        <span style="color: #666;">退出次数</span>
+                        <span class="stats-value" style="color: #333; font-weight: bold;">${exitCount}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f5f5f5; border-radius: 8px;">
+                        <span style="color: #666;">划线次数</span>
+                        <span class="stats-value" style="color: #333; font-weight: bold;">${totalStrokes}</span>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button onclick="closeRecording()" style="background: #A88DCB; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">关闭</button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // 清除创建标记
+            setTimeout(() => {
+                window.isCreatingModal = false;
+            }, 100);
+            
+            console.log('📊 recording统计弹窗已显示');
+        }
+        
+        // 关闭recording统计弹窗 - 返回到灰色遮罩
+        function closeRecording() {
+            console.log('📊 关闭recording统计弹窗，返回到灰色遮罩');
+            
+            const modal = document.getElementById('statsModal');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.style.visibility = 'hidden';
+                modal.style.opacity = '0';
+                console.log('✅ recording弹窗已关闭，保持在overlay模式');
+            }
+        }
+        
+        // 更新recording页面的strokes计数
+        function updateRecordingStrokes() {
+            // 更新totalStrokes变量
+            totalStrokes = highlightedElements.length;
+            
+            // 如果recording弹窗已打开，更新显示
+            const statsModal = document.getElementById('statsModal');
+            if (statsModal && statsModal.style.display !== 'none') {
+                const strokesElement = statsModal.querySelector('.stats-value:last-child');
+                if (strokesElement) {
+                    strokesElement.textContent = totalStrokes;
+                }
+            }
+            
+            console.log('📊 已更新recording页面的strokes计数:', totalStrokes);
+        }
+        
+        
+        
+        
+        // 进入文本选择模式
+        function enterTextSelectionMode() {
+            console.log('📝 显示笔记页面');
+            
+            // 关闭灰色遮罩
+            closeOverlay();
+            
+            // 显示笔记模态框
+            showNotesModal();
+        }
+        
+        // 显示笔记模态框
+        function showNotesModal() {
+            console.log('📝 显示笔记模态框');
+            
+            // 检查是否已经存在模态框
+            const existingModal = document.getElementById('notesModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // 获取笔记数据
+            const notes = JSON.parse(localStorage.getItem('notes') || '[]');
+            console.log('📝 当前笔记数量:', notes.length);
+            
+            // 创建模态框
+            const modal = document.createElement('div');
+            modal.id = 'notesModal';
+            modal.className = 'notes-modal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            `;
+            
+            // 创建模态框内容
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                width: 428px;
+                height: 690px;
+                background: white;
+                border-radius: 20px;
+                padding: 20px;
+                position: relative;
+                overflow: hidden;
+            `;
+            
+            // 创建标题栏
+            const titleBar = document.createElement('div');
+            titleBar.style.cssText = `
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+                padding-bottom: 15px;
+                border-bottom: 1px solid #eee;
+            `;
+            
+            const title = document.createElement('h2');
+            title.textContent = '我的笔记';
+            title.style.cssText = `
+                margin: 0;
+                font-size: 18px;
+                color: #333;
+            `;
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '×';
+            closeBtn.style.cssText = `
+                background: none;
+                border: none;
+                font-size: 24px;
+                cursor: pointer;
+                color: #666;
+                width: 30px;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            `;
+            closeBtn.onclick = () => {
+                modal.remove();
+            };
+            
+            titleBar.appendChild(title);
+            titleBar.appendChild(closeBtn);
+            
+            // 创建笔记列表容器
+            const notesList = document.createElement('div');
+            notesList.style.cssText = `
+                height: 580px;
+                overflow-y: auto;
+                padding-right: 10px;
+            `;
+            
+            if (notes.length === 0) {
+                const emptyState = document.createElement('div');
+                emptyState.style.cssText = `
+                    text-align: center;
+                    color: #999;
+                    margin-top: 100px;
+                    font-size: 16px;
+                `;
+                emptyState.innerHTML = `
+                    <div>暂无笔记</div>
+                    <div style="font-size: 14px; margin-top: 10px;">长按文字段落可以添加笔记</div>
+                `;
+                notesList.appendChild(emptyState);
+            } else {
+                notes.forEach((note, index) => {
+                    const noteItem = document.createElement('div');
+                    noteItem.style.cssText = `
+                        background: #f8f9fa;
+                        border-radius: 8px;
+                        padding: 15px;
+                        margin-bottom: 15px;
+                        border-left: 4px solid #A88DCB;
+                    `;
+                    
+                    const noteText = document.createElement('div');
+                    noteText.textContent = note.text;
+                    noteText.style.cssText = `
+                        font-size: 14px;
+                        line-height: 1.5;
+                        color: #333;
+                        margin-bottom: 8px;
+                    `;
+                    
+                    const noteTime = document.createElement('div');
+                    noteTime.textContent = note.timestamp;
+                    noteTime.style.cssText = `
+                        font-size: 12px;
+                        color: #666;
+                    `;
+                    
+                    noteItem.appendChild(noteText);
+                    noteItem.appendChild(noteTime);
+                    notesList.appendChild(noteItem);
+                });
+            }
+            
+            modalContent.appendChild(titleBar);
+            modalContent.appendChild(notesList);
+            modal.appendChild(modalContent);
+            
+            // 点击背景关闭
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            };
+            
+            document.body.appendChild(modal);
+            
+            console.log('📝 笔记模态框已显示');
+        }
+        
+        // 页面跳转功能
+        function goBack() {
+            // 记录页面导航退出
+            recordPageNavigationExit();
+            // 返回Details页面
+            window.location.href = 'details.html';
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        // 从选择创建划线（保留原函数以兼容性）
+        
+        // 取消选择
+        
+        // 页面跳转功能
+        function goBack() {
+            // 记录页面导航退出
+            recordPageNavigationExit();
+            // 返回Details页面
+            window.location.href = 'details.html';
+        }
+
+        // 处理文字区域点击
+        function handleTextClick(event) {
+            // 如果正在选择文本，不处理点击事件
+            if (isSelectingText) {
+                return;
+            }
+            
+            // 如果点击的是选择框、手柄或选择菜单，不处理
+            if (event && (event.target.classList.contains('text-selection-box') || 
+                event.target.classList.contains('selection-handle') ||
+                event.target.closest('#native-selection-menu'))) {
+                return;
+            }
+            
+            // 如果点击的是划线部分，显示删除选项
+            if (event && event.target.classList.contains('highlighted')) {
+                showDeleteConfirmation(event.target);
+                return;
+            }
+            
+            // 检查是否有任何弹窗或遮罩打开
+            const hasRecordingModal = document.getElementById('statsModal') && document.getElementById('statsModal').style.display === 'block';
+            const hasSimpleRecordingModal = document.getElementById('simpleRecordingModal') && document.getElementById('simpleRecordingModal').style.display === 'block';
+            const hasNotebookModal = document.getElementById('notebookModal') && document.getElementById('notebookModal').classList.contains('show');
+            const hasOverlay = document.querySelector('.overlay-background');
+            const hasSelectionMenu = document.getElementById('native-selection-menu');
+            
+            if (hasRecordingModal || hasSimpleRecordingModal || hasNotebookModal || hasOverlay || hasSelectionMenu) {
+                return;
+            }
+            
+            // 如果点击的是文字段落，且不是划线部分，显示灰色遮罩
+            if (event && event.target.tagName === 'P' && !event.target.classList.contains('highlighted')) {
+                createOverlay();
+            } else {
+                // 如果没有event参数，直接显示遮罩
+                createOverlay();
+            }
+        }
+
+        // 打开overlay遮罩
+        function openOverlay() {
+            console.log('📖 尝试打开overlay遮罩');
+            
+            // 检查是否已有recording弹窗打开
+            if (document.querySelector('.stats-modal.show')) {
+                console.log('⚠️ recording弹窗已打开，请先关闭recording');
+                return;
+            }
+            
+            // 检查是否已有overlay遮罩
+            if (document.querySelector('.overlay-background')) {
+                console.log('⚠️ overlay遮罩已存在');
+                return;
+            }
+            
+            console.log('✅ 可以打开overlay遮罩');
+            createOverlay();
+        }
+
+        // 显示recording弹窗
+        function showRecording() {
+            // 设置创建标记
+            window.isCreatingModal = true;
+            
+            // 删除现有的弹窗
+            const existingModal = document.getElementById('simpleRecordingModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // 创建全新的弹窗元素
+            const newModal = document.createElement('div');
+            newModal.id = 'simpleRecordingModal';
+            newModal.innerHTML = `
+                <h3 style="text-align: center; margin-bottom: 20px;">Recording</h3>
+                <div style="margin-bottom: 15px;">
+                    <div style="background: #EAEAEA; padding: 5px 15px; border-radius: 15px; text-align: center; margin-bottom: 10px; font-size: 12px;">Reading Time</div>
+                    <div style="display: flex; gap: 20px; justify-content: center;">
+                        <div style="display: flex; align-items: flex-end; gap: 5px;">
+                            <div style="width: 42px; height: 28px; border: 1px solid #A88DCB; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px;" id="simpleReadingHours">0</div>
+                            <div style="font-size: 13px;">Hour</div>
+                        </div>
+                        <div style="display: flex; align-items: flex-end; gap: 5px;">
+                            <div style="width: 42px; height: 28px; border: 1px solid #A88DCB; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px;" id="simpleReadingMinutes">0</div>
+                            <div style="font-size: 13px;">Min</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <div style="background: #EAEAEA; padding: 5px 15px; border-radius: 15px; text-align: center; margin-bottom: 10px; font-size: 12px;">Number of Exits</div>
+                    <div style="display: flex; justify-content: center;">
+                        <div style="display: flex; align-items: flex-end; gap: 5px;">
+                            <div style="width: 42px; height: 28px; border: 1px solid #A88DCB; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px;" id="simpleExitCount">0</div>
+                            <div style="font-size: 13px;">Times</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <div style="background: #EAEAEA; padding: 5px 15px; border-radius: 15px; text-align: center; margin-bottom: 10px; font-size: 12px;">Number of strokes</div>
+                    <div style="display: flex; justify-content: center;">
+                        <div style="display: flex; align-items: flex-end; gap: 5px;">
+                            <div style="width: 42px; height: 28px; border: 1px solid #A88DCB; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px;" id="simpleHighlightCount">0</div>
+                            <div style="font-size: 13px;">Items</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // 设置样式 - 直接设置，不使用CSS类
+            newModal.style.cssText = `
+                position: fixed !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                width: 240px !important;
+                height: 320px !important;
+                background: white !important;
+                color: black !important;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                z-index: 10002 !important;
+                padding: 20px !important;
+                border-radius: 15px !important;
+                box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3) !important;
+            `;
+            
+            // 添加到页面
+            document.body.appendChild(newModal);
+            
+            // 更新数据
+            try {
+                const currentExitCount = parseInt(localStorage.getItem('exitCount') || '0');
+                document.getElementById('simpleReadingHours').textContent = Math.floor(readingTime / 60);
+                document.getElementById('simpleReadingMinutes').textContent = readingTime % 60;
+                document.getElementById('simpleExitCount').textContent = currentExitCount;
+                document.getElementById('simpleHighlightCount').textContent = totalStrokes;
+                console.log('✅ 数据已更新，退出次数:', currentExitCount);
+            } catch (error) {
+                console.error('❌ 更新数据时出错:', error);
+            }
+            
+            // 延迟清除创建标记，确保弹窗完全创建
+            setTimeout(() => {
+                window.isCreatingModal = false;
+                console.log('✅ 创建标记已清除');
+            }, 100);
+            
+            console.log('✅ 新recording弹窗已创建并显示');
+        }
+
+
+
+
+        // 显示recording统计弹窗 - 创建新弹窗版本
+        function showRecording() {
+            console.log('📊 显示recording统计弹窗');
+            
+            // 设置创建标记
+            window.isCreatingModal = true;
+            
+            // 删除现有的弹窗
+            const existingModal = document.getElementById('statsModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // 创建全新的recording弹窗
+            const newModal = document.createElement('div');
+            newModal.id = 'statsModal';
+            newModal.innerHTML = `
+                <div style="position: absolute; top: 7px; left: 50%; transform: translateX(-50%); width: 94px; height: 28px; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 18px; line-height: 1.5em; color: #000000;">Recording</div>
+                
+                <div style="position: absolute; top: 57px; left: 15px; width: 184px; height: 71px;">
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 28px; background: #EAEAEA; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-weight: 500; font-size: 12px; line-height: 1.5em; color: #000000;">Reading Time</div>
+                    <div style="position: absolute; top: 43px; left: 15px; display: flex; align-items: flex-end; gap: 20px;">
+                        <div style="display: flex; align-items: flex-end; gap: 5px;">
+                            <div style="width: 42px; height: 28px; border: 1px solid #A88DCB; border-radius: 10px; text-align: center; font-size: 14px; color: #19191B; display: flex; align-items: center; justify-content: center; background: #FFFFFF;" id="readingHours">0</div>
+                            <div style="font-weight: 300; font-size: 13px; line-height: 1.5em; color: #000000;">Hour</div>
+                        </div>
+                        <div style="display: flex; align-items: flex-end; gap: 5px;">
+                            <div style="width: 42px; height: 28px; border: 1px solid #A88DCB; border-radius: 10px; text-align: center; font-size: 14px; color: #19191B; display: flex; align-items: center; justify-content: center; background: #FFFFFF;" id="readingMinutes">0</div>
+                            <div style="font-weight: 300; font-size: 13px; line-height: 1.5em; color: #000000;">Min</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="position: absolute; top: 148px; left: 15px; width: 104px; height: 71px;">
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 28px; background: #EAEAEA; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-weight: 500; font-size: 12px; line-height: 1.5em; color: #000000;">Number of Exits</div>
+                    <div style="position: absolute; top: 43px; left: 15px; display: flex; align-items: flex-end; gap: 20px;">
+                        <div style="display: flex; align-items: flex-end; gap: 5px;">
+                            <div style="width: 42px; height: 28px; border: 1px solid #A88DCB; border-radius: 10px; text-align: center; font-size: 14px; color: #19191B; display: flex; align-items: center; justify-content: center; background: #FFFFFF;" id="exitCount">0</div>
+                            <div style="font-weight: 300; font-size: 13px; line-height: 1.5em; color: #000000;">Times</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="position: absolute; top: 239px; left: 15px; width: 121px; height: 71px;">
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 28px; background: #EAEAEA; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-weight: 500; font-size: 12px; line-height: 1.5em; color: #000000;">Number of strokes</div>
+                    <div style="position: absolute; top: 43px; left: 15px; display: flex; align-items: flex-end; gap: 20px;">
+                        <div style="display: flex; align-items: flex-end; gap: 5px;">
+                            <div style="width: 42px; height: 28px; border: 1px solid #A88DCB; border-radius: 10px; text-align: center; font-size: 14px; color: #19191B; display: flex; align-items: center; justify-content: center; background: #FFFFFF;" id="highlightCount">0</div>
+                            <div style="font-weight: 300; font-size: 13px; line-height: 1.5em; color: #000000;">Items</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // 设置样式 - 直接设置，不使用CSS类
+            newModal.style.cssText = `
+                position: fixed !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                width: 240px !important;
+                height: 320px !important;
+                background: #FFFFFF !important;
+                border-radius: 15px !important;
+                box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3) !important;
+                z-index: 10001 !important;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                padding: 0 !important;
+            `;
+            
+            // 添加到页面
+            document.body.appendChild(newModal);
+            
+            // 更新弹窗中的数值
+            try {
+                const currentExitCount = parseInt(localStorage.getItem('exitCount') || '0');
+                document.getElementById('readingHours').textContent = Math.floor(readingTime / 60);
+                document.getElementById('readingMinutes').textContent = readingTime % 60;
+                document.getElementById('exitCount').textContent = currentExitCount;
+                document.getElementById('highlightCount').textContent = totalStrokes;
+                console.log('✅ 统计数据已更新，退出次数:', currentExitCount);
+            } catch (error) {
+                console.error('❌ 更新统计数据时出错:', error);
+            }
+            
+            // 延迟清除创建标记，确保弹窗完全创建
+            setTimeout(() => {
+                window.isCreatingModal = false;
+                console.log('✅ 创建标记已清除');
+            }, 100);
+            
+            console.log('✅ 新recording弹窗已创建并显示');
+        }
+
+        // 关闭recording统计弹窗 - 返回到灰色遮罩
+        function closeRecording() {
+            console.log('📊 关闭recording统计弹窗，返回到灰色遮罩');
+            
+            const modal = document.getElementById('statsModal');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.style.visibility = 'hidden';
+                modal.style.opacity = '0';
+                console.log('✅ recording弹窗已关闭，保持在overlay模式');
+            }
+        }
+
+        // 显示笔记本弹窗
+        function showNotebook() {
+            console.log('📓 显示笔记本弹窗');
+            window.isCreatingNotebookModal = true; // 设置创建标记
+            
+            const modal = document.getElementById('notebookModal');
+            const content = document.getElementById('notebookContent');
+            
+            if (!modal) {
+                console.error('❌ 未找到notebookModal元素！');
+                return;
+            }
+            
+            // 重置到第一页
+            currentPage = 0;
+            
+            // 显示笔记内容
+            displayNotes();
+            
+            modal.classList.add('show');
+            
+            // 显示底部标签栏
+            const bottomBar = document.getElementById('notebookBottomBar');
+            if (bottomBar) {
+                bottomBar.classList.add('show');
+            }
+            
+            console.log('✅ 笔记本弹窗已显示，包含', highlightedElements.length, '条笔记');
+            
+            // 清除创建标记
+            setTimeout(() => {
+                window.isCreatingNotebookModal = false;
+                console.log('✅ 笔记本创建标记已清除');
+            }, 100);
+        }
+
+        // 显示笔记内容（分页功能）
+        function displayNotes() {
+            const content = document.getElementById('notebookContent');
+            content.innerHTML = '';
+            
+            // 生成示例笔记内容
+            const sampleNotes = [
+                "Stradlater spends the evening on a date with Jane Gallagher, a girl whom Holden used to date and whom he still admires. This passage reveals Holden's complex feelings about Jane and his protective instincts towards her.",
+                "The catcher in the rye represents Holden's desire to protect children from the harsh realities of adulthood. He imagines himself standing in a field of rye, catching children who are about to fall off a cliff.",
+                "Holden's red hunting hat symbolizes his individuality and his desire to stand out from the crowd. He wears it when he wants to feel different or when he's feeling particularly alienated.",
+                "Phoebe is Holden's younger sister and represents innocence and purity in his life. She serves as a contrast to the phoniness he sees in the adult world around him.",
+                "The museum represents stability and permanence in Holden's chaotic world. He finds comfort in the fact that the exhibits never change, unlike the people in his life who seem to constantly disappoint him.",
+                "Holden's relationship with his parents is strained, particularly with his father who wants him to attend an elite prep school. This tension reflects Holden's rejection of the adult world's values and expectations.",
+                "The ducks in Central Park symbolize Holden's own feelings of displacement and uncertainty about where he belongs in the world. He repeatedly asks cab drivers about where the ducks go in winter.",
+                "Allie's death has a profound impact on Holden, representing the loss of innocence and the harsh reality of mortality. Holden keeps Allie's baseball mitt as a connection to his lost brother."
+            ];
+            
+            // 合并实际划线和示例笔记
+            let allNotes = [...highlightedElements];
+            if (allNotes.length < 8) {
+                const remainingNotes = 8 - allNotes.length;
+                for (let i = 0; i < remainingNotes; i++) {
+                    allNotes.push({
+                        text: sampleNotes[i],
+                        timestamp: `示例笔记 ${i + 1}`
+                    });
+                }
+            }
+            
+            // 计算当前页的笔记范围
+            const startIndex = currentPage * notesPerPage;
+            const endIndex = Math.min(startIndex + notesPerPage, allNotes.length);
+            const currentPageNotes = allNotes.slice(startIndex, endIndex);
+            
+            // 显示当前页的笔记
+            currentPageNotes.forEach((note, index) => {
+                const noteItem = document.createElement('div');
+                noteItem.className = 'notebook-item';
+                noteItem.innerHTML = `
+                    <div class="text">${note.text}</div>
+                    <div class="timestamp">${note.timestamp}</div>
+                `;
+                content.appendChild(noteItem);
+            });
+            
+            // 更新指示器
+            updateIndicators(allNotes.length);
+        }
+
+        // 更新底部指示器
+        function updateIndicators(totalNotes) {
+            const indicators = document.querySelectorAll('.indicator');
+            const totalPages = Math.ceil(totalNotes / notesPerPage);
+            
+            indicators.forEach((indicator, index) => {
+                if (index < totalPages) {
+                    indicator.style.display = 'block';
+                    indicator.classList.toggle('active', index === currentPage);
+                } else {
+                    indicator.style.display = 'none';
+                }
+            });
+        }
+
+        // 翻页功能
+        function nextPage() {
+            const totalNotes = Math.max(highlightedElements.length, 8);
+            const totalPages = Math.ceil(totalNotes / notesPerPage);
+            
+            if (currentPage < totalPages - 1) {
+                currentPage++;
+                displayNotes();
+                console.log('📄 翻到第', currentPage + 1, '页');
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 0) {
+                currentPage--;
+                displayNotes();
+                console.log('📄 翻到第', currentPage + 1, '页');
+            }
+        }
+
+        // 跳转到指定页面
+        function goToPage(pageIndex) {
+            const totalNotes = Math.max(highlightedElements.length, 8);
+            const totalPages = Math.ceil(totalNotes / notesPerPage);
+            
+            if (pageIndex >= 0 && pageIndex < totalPages) {
+                currentPage = pageIndex;
+                displayNotes();
+                console.log('📄 跳转到第', currentPage + 1, '页');
+            }
+        }
+
+        // 更新recording页面的strokes计数
+        function updateRecordingStrokes() {
+            // 更新totalStrokes变量
+            totalStrokes = highlightedElements.length;
+            
+            // 如果recording弹窗已打开，更新显示
+            const statsModal = document.getElementById('statsModal');
+            if (statsModal && statsModal.style.display === 'block') {
+                const strokesElement = statsModal.querySelector('.stats-value');
+                if (strokesElement) {
+                    strokesElement.textContent = totalStrokes;
+                }
+            }
+            
+            console.log('📊 已更新recording页面的strokes计数:', totalStrokes);
+        }
+
+        // 关闭笔记本弹窗，返回到灰色遮罩
+        function closeNotebook() {
+            const modal = document.getElementById('notebookModal');
+            modal.classList.remove('show');
+            
+            // 隐藏底部标签栏
+            const bottomBar = document.getElementById('notebookBottomBar');
+            if (bottomBar) {
+                bottomBar.classList.remove('show');
+            }
+            
+            // 移除所有icon的active状态，返回到灰色遮罩状态
+            const allIcons = document.querySelectorAll('.icon-item');
+            allIcons.forEach(icon => icon.classList.remove('active'));
+            
+            console.log('✅ 笔记本弹窗已关闭，返回到灰色遮罩');
+        }
+
+        // 删除所有笔记
+        function deleteAllNotes() {
+            // 显示选择删除界面
+            showDeleteSelection();
+        }
+
+        // 显示删除选择界面
+        function showDeleteSelection() {
+            const content = document.getElementById('notebookContent');
+            const allNotes = [...highlightedElements];
+            
+            // 生成示例笔记内容
+            const sampleNotes = [
+                "Stradlater spends the evening on a date with Jane Gallagher, a girl whom Holden used to date and whom he still admires. This passage reveals Holden's complex feelings about Jane and his protective instincts towards her.",
+                "The catcher in the rye represents Holden's desire to protect children from the harsh realities of adulthood. He imagines himself standing in a field of rye, catching children who are about to fall off a cliff.",
+                "Holden's red hunting hat symbolizes his individuality and his desire to stand out from the crowd. He wears it when he wants to feel different or when he's feeling particularly alienated.",
+                "Phoebe is Holden's younger sister and represents innocence and purity in his life. She serves as a contrast to the phoniness he sees in the adult world around him.",
+                "The museum represents stability and permanence in Holden's chaotic world. He finds comfort in the fact that the exhibits never change, unlike the people in his life who seem to constantly disappoint him.",
+                "Holden's relationship with his parents is strained, particularly with his father who wants him to attend an elite prep school. This tension reflects Holden's rejection of the adult world's values and expectations.",
+                "The ducks in Central Park symbolize Holden's own feelings of displacement and uncertainty about where he belongs in the world. He repeatedly asks cab drivers about where the ducks go in winter.",
+                "Allie's death has a profound impact on Holden, representing the loss of innocence and the harsh reality of mortality. Holden keeps Allie's baseball mitt as a connection to his lost brother."
+            ];
+            
+            // 合并实际划线和示例笔记
+            if (allNotes.length < 8) {
+                const remainingNotes = 8 - allNotes.length;
+                for (let i = 0; i < remainingNotes; i++) {
+                    allNotes.push({
+                        text: sampleNotes[i],
+                        timestamp: `示例笔记 ${i + 1}`,
+                        isSample: true
+                    });
+                }
+            }
+            
+            // 清空内容并显示选择界面
+            content.innerHTML = '';
+            
+            // 添加标题
+            const titleDiv = document.createElement('div');
+            titleDiv.className = 'delete-title';
+            titleDiv.innerHTML = '<h3>选择要删除的笔记</h3>';
+            content.appendChild(titleDiv);
+            
+            // 显示所有笔记供选择
+            allNotes.forEach((note, index) => {
+                const noteItem = document.createElement('div');
+                noteItem.className = 'notebook-item selectable';
+                noteItem.innerHTML = `
+                    <div class="note-checkbox">
+                        <input type="checkbox" id="note-${index}" class="note-select" data-index="${index}">
+                        <label for="note-${index}"></label>
+                    </div>
+                    <div class="text">${note.text}</div>
+                    <div class="timestamp">${note.timestamp}</div>
+                `;
+                content.appendChild(noteItem);
+            });
+            
+            // 添加操作按钮
+            const buttonDiv = document.createElement('div');
+            buttonDiv.className = 'delete-buttons';
+            buttonDiv.innerHTML = `
+                <button class="cancel-delete-btn" onclick="cancelDelete()">取消</button>
+                <button class="confirm-delete-btn" onclick="confirmDelete()">确认删除</button>
+            `;
+            content.appendChild(buttonDiv);
+        }
+
+        // 取消删除
+        function cancelDelete() {
+            displayNotes();
+        }
+
+        // 确认删除选中的笔记
+        function confirmDelete() {
+            const selectedCheckboxes = document.querySelectorAll('.note-select:checked');
+            const selectedIndices = Array.from(selectedCheckboxes).map(cb => parseInt(cb.dataset.index));
+            
+            if (selectedIndices.length === 0) {
+                alert('请选择要删除的笔记');
+                return;
+            }
+            
+            if (confirm(`确定要删除选中的 ${selectedIndices.length} 条笔记吗？`)) {
+                // 删除选中的笔记（只删除实际划线，不删除示例笔记）
+                let deletedCount = 0;
+                const deletedHighlights = [];
+                
+                selectedIndices.forEach(index => {
+                    if (index < highlightedElements.length) {
+                        deletedHighlights.push(highlightedElements[index]);
+                        highlightedElements.splice(index, 1);
+                        deletedCount++;
+                    }
+                });
+                
+                // 保存批量删除操作到数据库
+                saveToDatabase('batch_delete_highlights', {
+                    deletedCount: deletedCount,
+                    deletedHighlights: deletedHighlights,
+                    totalStrokes: highlightedElements.length
+                });
+                
+                // 更新strokes计数
+                totalStrokes = highlightedElements.length;
+                updateRecordingStrokes();
+                
+                // 重新显示笔记（停留在mark页面）
+                displayNotes();
+                console.log('✅ 已删除选中的笔记，strokes计数已更新，停留在mark页面，删除操作已记录到数据库');
+            }
+        }
+
+        // 切换到笔记本模式
+        function switchToNotebook(element) {
+            console.log('📓 切换到笔记本模式');
+            
+            // 隐藏进度弹窗（如果正在显示）
+            hideProgressModal();
+            
+            // 移除所有icon的active状态
+            const allIcons = document.querySelectorAll('.icon-item');
+            allIcons.forEach(icon => icon.classList.remove('active'));
+            
+            // 添加当前icon的active状态
+            element.classList.add('active');
+            
+            // 显示笔记本弹窗
+            showNotebook();
+        }
+
+        // 切换到进度模式
+        function switchToProcessing(element) {
+            console.log('📊 切换到进度模式');
+            
+            // 检查进度弹窗是否已经显示
+            const progressModal = document.getElementById('progressModal');
+            const isProgressModalVisible = progressModal && progressModal.style.visibility === 'visible';
+            
+            // 移除所有icon的active状态
+            const allIcons = document.querySelectorAll('.icon-item');
+            allIcons.forEach(icon => icon.classList.remove('active'));
+            
+            if (isProgressModalVisible) {
+                // 如果进度弹窗已经显示，则隐藏它
+                console.log('📊 进度弹窗已显示，隐藏弹窗');
+                hideProgressModal();
+                // 不添加active状态，保持灰色遮罩状态
+            } else {
+                // 如果进度弹窗未显示，则显示它
+                console.log('📊 显示进度弹窗');
+                // 添加当前icon的active状态
+                element.classList.add('active');
+                // 显示进度弹窗
+                showProgressModal();
+            }
+        }
+
+        // 切换到亮度模式
+        function switchToLight(element) {
+            console.log('💡 切换到亮度模式');
+            
+            // 隐藏进度弹窗（如果正在显示）
+            hideProgressModal();
+            
+            // 移除所有icon的active状态
+            const allIcons = document.querySelectorAll('.icon-item');
+            allIcons.forEach(icon => icon.classList.remove('active'));
+            
+            // 添加当前icon的active状态
+            element.classList.add('active');
+            
+            // 显示亮度调节功能（暂时不实现具体功能）
+            console.log('显示亮度调节功能');
+        }
+
+        // 创建overlay遮罩
+        function createOverlay() {
+            // 创建overlay背景
+            const overlayBackground = document.createElement('div');
+            overlayBackground.className = 'overlay-background';
+            overlayBackground.onclick = closeOverlay;
+            
+            // 创建overlay容器
+            const overlayContainer = document.createElement('div');
+            overlayContainer.className = 'overlay-container';
+            overlayContainer.innerHTML = `
+                <!-- 顶部导航栏 -->
+                <div class="top-tab-bar">
+                    <div class="top-nav-content">
+                        <div class="back-button" onclick="closeOverlay()">
+                            <img src="../images/Vector.svg" width="19" height="16" alt="返回">
+                        </div>
+                        <div class="book-info">
+                            <div class="book-title">Oliver Twist</div>
+                            <div class="book-author">Charles Dickens</div>
+                        </div>
+                        <div class="menu-button">
+                            <div class="menu-dot"></div>
+                            <div class="menu-dot"></div>
+                            <div class="menu-dot"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 中间半透明内容区域 -->
+                <div class="content-overlay" onclick="closeOverlay()">
+                    <!-- 这里可以放置具体的内容 -->
+                </div>
+
+                                        <!-- 底部图标栏 -->
+                        <div class="bottom-label-bar">
+                            <div class="bottom-icons">
+                                <!-- 笔记本图标 -->
+                                <div class="icon-item" onclick="switchToNotebook(this)">
+                                    <img src="../images/notebook.svg" width="30" height="30" alt="notebook">
+                                </div>
+
+                                <!-- 进度图标 -->
+                                <div class="icon-item" onclick="switchToProcessing(this)">
+                                    <img src="../images/processing.svg" width="30" height="30" alt="processing">
+                                </div>
+
+                                <!-- 亮度图标 -->
+                                <div class="icon-item" onclick="switchToLight(this)">
+                                    <img src="../images/light.svg" width="30" height="30" alt="light">
+                                </div>
+                            </div>
+                        </div>
+            `;
+            
+            // 添加到页面
+            document.body.appendChild(overlayBackground);
+            document.body.appendChild(overlayContainer);
+            
+            // 瞬间展开overlay（instant）
+            overlayContainer.style.transform = 'scale(1) translateY(0)';
+            overlayContainer.style.opacity = '1';
+            
+            // 添加bottom bar弹出动画
+            setTimeout(() => {
+                const bottomBar = overlayContainer.querySelector('.bottom-label-bar');
+                if (bottomBar) {
+                    bottomBar.classList.add('show');
+                }
+            }, 50);
+        }
+
+        // 关闭overlay遮罩
+        function closeOverlay() {
+            const overlayBackground = document.querySelector('.overlay-background');
+            const overlayContainer = document.querySelector('.overlay-container');
+            
+            if (overlayContainer) {
+                // 瞬间关闭overlay（instant）
+                overlayContainer.style.transform = 'scale(0.8) translateY(50px)';
+                overlayContainer.style.opacity = '0';
+                
+                // 立即移除元素
+                if (overlayBackground) overlayBackground.remove();
+                if (overlayContainer) overlayContainer.remove();
+            }
+        }
+
+        // 切换图标激活状态
+        function switchIcon(clickedIcon, iconType) {
+            // 移除所有图标的激活状态
+            document.querySelectorAll('.icon-item').forEach(icon => {
+                icon.classList.remove('active');
+            });
+            
+            // 激活被点击的图标
+            clickedIcon.classList.add('active');
+            
+            console.log('切换到图标:', iconType);
+            
+            // 这里可以添加具体的功能逻辑
+            switch(iconType) {
+                case 'notebook':
+                    console.log('显示笔记本功能');
+                    break;
+                case 'processing':
+                    console.log('显示进度功能');
+                    break;
+                case 'light':
+                    console.log('显示亮度调节功能');
+                    break;
+            }
+        }
+
+        // 顶部导航栏滚动控制
+        let lastScrollTop = 0;
+        let scrollThreshold = 50; // 滚动阈值
+        let isScrolling = false;
+        let scrollTimer;
+
+        function handleScroll() {
+            const readingContent = document.getElementById('readingContent');
+            const topBar = document.getElementById('topBar');
+            
+            if (!readingContent || !topBar) return;
+
+            const scrollTop = readingContent.scrollTop;
+            const scrollDelta = scrollTop - lastScrollTop;
+
+            // 清除之前的定时器
+            clearTimeout(scrollTimer);
+
+            // 向上滚动时显示顶部栏
+            if (scrollDelta < -scrollThreshold) {
+                topBar.classList.remove('hidden');
+                topBar.classList.add('visible');
+            }
+            // 向下滚动时隐藏顶部栏
+            else if (scrollDelta > scrollThreshold) {
+                topBar.classList.remove('visible');
+                topBar.classList.add('hidden');
+            }
+
+            lastScrollTop = scrollTop;
+
+            // 设置定时器，停止滚动后显示顶部栏
+            scrollTimer = setTimeout(() => {
+                topBar.classList.remove('hidden');
+                topBar.classList.add('visible');
+            }, 1000);
+        }
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Book Normal页面加载完成');
+            
+            // 检查用户是否已登录
+            const currentUserId = localStorage.getItem('currentUserId');
+            if (!currentUserId) {
+                console.warn('未找到用户ID，重定向到登录页面');
+                window.location.href = 'number.html';
+                return;
+            }
+            
+            console.log('当前用户ID:', currentUserId);
+            
+            // 初始化界面停留时间记录
+            initPageStayTime();
+            
+            const readingContent = document.getElementById('readingContent');
+            if (readingContent) {
+                readingContent.addEventListener('scroll', handleScroll);
+            }
+            
+            // 启用网页端自带文本选择功能
+            enableNativeTextSelection();
+            
+            // 初始化一周阅读数据
+            initWeeklyReadingData();
+            
+            // 监听文本滚动事件，更新阅读位置
+            const textContent = document.getElementById('textContent');
+            if (textContent) {
+                textContent.addEventListener('scroll', updateCurrentReadingPosition);
+            }
+            
+            // 添加进度弹窗点击外部关闭功能
+            document.addEventListener('click', function(e) {
+                const progressModal = document.getElementById('progressModal');
+                if (progressModal && progressModal.style.display === 'block') {
+                    if (!progressModal.contains(e.target)) {
+                        hideProgressModal();
+                    }
+                }
+            });
+
+            // 页面加载动画
+            const container = document.querySelector('.container');
+            container.classList.add('fade-in');
+
+            // 加载示例文本
+            loadSampleText();
+            
+            // 添加智能点击事件处理器
+            addSmartClickHandler();
+
+            // 启动阅读时间计时器
+            setInterval(updateReadingTime, 1000);
+
+            // 添加页面退出统计
+            window.addEventListener('beforeunload', function() {
+                if (readingTime > 5) { // 只有阅读时间超过5分钟才记录退出
+                    exitCount++;
+                    console.log('📊 页面退出，阅读时间:', readingTime, '分钟，退出次数:', exitCount);
+                }
+            });
+
+            // 重新设计文本高亮系统
+            let isCreatingModal = false;
+            let isCreatingNotebookModal = false;
+
+            // 添加弹窗关闭功能 - 修复逻辑问题
+            document.addEventListener('click', function(e) {
+                // 如果正在创建弹窗，忽略这次点击
+                if (window.isCreatingModal || window.isCreatingNotebookModal) {
+                    console.log('🔍 正在创建弹窗，忽略点击事件');
+                    return;
+                }
+                
+                const statsModal = document.getElementById('statsModal');
+                const simpleRecordingModal = document.getElementById('simpleRecordingModal');
+                const notebookModal = document.getElementById('notebookModal');
+                
+                // 检查简单recording弹窗
+                if (simpleRecordingModal && simpleRecordingModal.style.display === 'block') {
+                    console.log('🔍 简单recording弹窗已打开，检查点击位置');
+                    if (!simpleRecordingModal.contains(e.target)) {
+                        console.log('🔍 点击在简单recording弹窗外部，关闭弹窗');
+                        simpleRecordingModal.style.display = 'none';
+                        // 阻止事件冒泡，避免触发overlay
+                        e.stopPropagation();
+                        return;
+                    }
+                }
+                
+                // 检查recording弹窗
+                if (statsModal && statsModal.style.display === 'block') {
+                    console.log('🔍 recording弹窗已打开，检查点击位置');
+                    if (!statsModal.contains(e.target)) {
+                        console.log('🔍 点击在recording弹窗外部，关闭弹窗');
+                        closeRecording();
+                        // 阻止事件冒泡，避免触发overlay
+                        e.stopPropagation();
+                        return;
+                    }
+                }
+                
+                // 检查笔记本弹窗
+                if (notebookModal && notebookModal.classList.contains('show')) {
+                    console.log('🔍 笔记本弹窗已打开，检查点击位置');
+                    if (!notebookModal.contains(e.target)) {
+                        console.log('🔍 点击在笔记本弹窗外部，关闭弹窗');
+                        closeNotebook();
+                    }
+                }
+            });
+        });
+
+        // 更新阅读时间
+        function updateReadingTime() {
+            const currentTime = Date.now();
+            readingTime = Math.floor((currentTime - startTime) / 1000 / 60); // 转换为分钟
+        }
+
+        // 加载示例文本
+        function loadSampleText() {
+            const textContent = document.getElementById('textContent');
+            if (!textContent) return;
+
+            // 这里可以替换为实际的Oliver Twist文本
+            const sampleText = `
+                <div class="chapter">
+                    <h2>Chapter 1: Treats of the Place Where Oliver Twist was Born and of the Circumstances Attending His Birth</h2>
+                    
+                    <p>Among other public buildings in a certain town, which for many reasons it will be prudent to refrain from mentioning, and to which I will assign no fictitious name, there is one anciently common to most towns, great or small: to wit, a workhouse; and in this workhouse was born; on a day and date which I need not trouble myself to repeat, inasmuch as it can be of no possible consequence to the reader, in this stage of the business at all events; the item of mortality whose name is prefixed to the head of this chapter.</p>
+                    
+                    <p>For a long time after it was ushered into this world of sorrow and trouble, by the parish surgeon, it remained a matter of considerable doubt whether the child would survive to bear any name at all; in which case it is somewhat more than probable that these memoirs would never have appeared; or, if they had, that being comprised within a couple of pages, they would have possessed the inestimable merit of being the most concise and faithful specimen of biography, extant in the literature of any age or country.</p>
+                    
+                    <p>Although I am not disposed to maintain that the being born in a workhouse, is in itself the most fortunate and enviable circumstance that can possibly befall a human being, I do mean to say that in this particular instance, it was the best thing for Oliver Twist that could by possibility have occurred. The fact is, that there was considerable difficulty in inducing Oliver to take upon himself the office of respiration,—a troublesome practice, but one which custom has rendered necessary to our easy existence; and for some time he lay gasping on a little flock mattress, rather unequally poised between this world and the next: the balance was decidedly in favour of the latter.</p>
+                </div>
+                
+                <div class="chapter">
+                    <h2>Chapter 2: Treats of Oliver Twist's Growth, Education, and Board</h2>
+                    
+                    <p>For the next eight or ten months, Oliver was the victim of a systematic course of treachery and deception. He was brought up by hand. The hungry and destitute situation of the infant orphan was duly reported by the workhouse authorities to the parish authorities. The parish authorities inquired with dignity of the workhouse authorities, whether there was not female then domiciled in 'the house' who was in a situation to impart to Oliver Twist, the consolation and nourishment of which he stood in need. The workhouse authorities replied with humility, that there was not. Upon this, the parish authorities magnanimously and humanely resolved, that Oliver should be 'farmed,' or, in other words, that he should be dispatched to a branch-workhouse some three miles off, where twenty or thirty other juvenile offenders against the poor-laws, rolled about the floor all day, without the inconvenience of too much food or too much clothing, under the parental superintendence of an elderly female who received the culprits at and for the consideration of sevenpence-halfpenny per small head per week.</p>
+                    
+                    <p>Sevenpence-halfpenny's worth per week is a good round diet for a child; a great deal may be got for sevenpence-halfpenny: quite enough to overload its stomach, and make it uncomfortable. The elderly female was a woman of wisdom and experience; she knew what was good for children; and she had a very accurate perception of what was good for herself. So, she appropriated the greater part of the weekly stipend to her own use, and consigned the rising parochial generation to even a shorter allowance than was originally provided for them. Thereby finding in the lowest depth a deeper still; and proving herself a very great experimental philosopher.</p>
+                </div>
+                
+                <div class="chapter">
+                    <h2>Chapter 3: Relates How Oliver Twist was Very Near Getting a Place, Which Would Not Have Been a Sinecure</h2>
+                    
+                    <p>For a week after the commission of the impious and profane offence of asking for more, Oliver remained a close prisoner in the dark and solitary room to which he had been consigned by the wisdom and mercy of the board. It appears, at first sight, not unreasonable to suppose, that, if he had entertained a becoming feeling of respect for the prediction of the gentleman in the white waistcoat, he would have established that sage individual's prophetic character, once and for ever, by tying one end of his pocket-handkerchief to a hook in the wall, and attaching the other end to his neck. But to perform the act, he would have been obliged to climb upon a chair; and the chair was very rickety; and the wall was very high; and the handkerchief was very thin; and the hook was very rusty; and the board was very wise; and the gentleman in the white waistcoat was very dignified; and Oliver was very young; and Oliver was very much afraid of the board; and Oliver was very much afraid of the gentleman in the white waistcoat; and Oliver was very much afraid of the workhouse; and Oliver was very much afraid of the parish; and Oliver was very much afraid of the beadle; and Oliver was very much afraid of the master; and Oliver was very much afraid of the mistress; and Oliver was very much afraid of the matron; and Oliver was very much afraid of the cook; and Oliver was very much afraid of the nurse; and Oliver was very much afraid of the doctor; and Oliver was very much afraid of the apothecary; and Oliver was very much afraid of the undertaker; and Oliver was very much afraid of the sexton; and Oliver was very much afraid of the clergyman; and Oliver was very much afraid of the churchwarden; and Oliver was very much afraid of the overseer; and Oliver was very much afraid of the guardian; and Oliver was very much afraid of the committee; and Oliver was very much afraid of the board; and Oliver was very much afraid of the gentleman in the white waistcoat.</p>
+                </div>
+            `;
+
+            textContent.innerHTML = sampleText;
+        }
+        
+        // 添加智能点击事件处理器
+        function addSmartClickHandler() {
+            const textContent = document.getElementById('textContent');
+            if (!textContent) return;
+            
+            let clickTimer = null;
+            let isLongPress = false;
+            
+            // 鼠标按下事件
+            textContent.addEventListener('mousedown', function(e) {
+                if (e.target.tagName === 'P' && !e.target.classList.contains('highlighted')) {
+                    isLongPress = false;
+                    clickTimer = setTimeout(() => {
+                        isLongPress = true;
+                        console.log('📝 检测到长按，启动文本选择');
+                        // 调用startHighlightTimer处理长按逻辑
+                        startHighlightTimer(e);
+                    }, 500);
+                }
+            });
+            
+            // 鼠标抬起事件
+            textContent.addEventListener('mouseup', function(e) {
+                if (clickTimer) {
+                    clearTimeout(clickTimer);
+                    clickTimer = null;
+                }
+                
+                // 检查是否点击了选择菜单
+                if (e.target.closest('#native-selection-menu')) {
+                    return;
+                }
+                
+                if (!isLongPress && e.target.tagName === 'P' && !e.target.classList.contains('highlighted')) {
+                    setTimeout(() => {
+                        if (!isSelectingText) {
+                            handleTextClick(e);
+                        }
+                    }, 10);
+                }
+                
+                isLongPress = false;
+            });
+            
+            // 触摸事件
+            textContent.addEventListener('touchstart', function(e) {
+                if (e.target.tagName === 'P' && !e.target.classList.contains('highlighted')) {
+                    isLongPress = false;
+                    clickTimer = setTimeout(() => {
+                        isLongPress = true;
+                        // 调用startHighlightTimer处理长按逻辑
+                        startHighlightTimer(e);
+                    }, 500);
+                }
+            });
+            
+            textContent.addEventListener('touchend', function(e) {
+                if (clickTimer) {
+                    clearTimeout(clickTimer);
+                    clickTimer = null;
+                }
+                
+                // 检查是否点击了选择菜单
+                if (e.target.closest('#native-selection-menu')) {
+                    return;
+                }
+                
+                if (!isLongPress && e.target.tagName === 'P' && !e.target.classList.contains('highlighted')) {
+                    setTimeout(() => {
+                        if (!isSelectingText) {
+                            handleTextClick(e);
+                        }
+                    }, 10);
+                }
+                
+                isLongPress = false;
+            });
+        }
+    </script>
+    
+</body>
+</html>

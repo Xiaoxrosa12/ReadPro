@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - An Ebook Reading</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 428px;
+            height: 926px;
+            background-color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+        }
+
+        /* 指示器圆点组 */
+        .indicator-group {
+            position: absolute;
+            left: 182px;
+            top: 543px;
+            width: 64px;
+            height: 6px;
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .indicator {
+            border-radius: 5px;
+            height: 6px;
+        }
+
+        .indicator.active {
+            width: 26px;
+            background-color: #A88DCB;
+            transition: all 0.3s ease;
+        }
+
+        .indicator.inactive {
+            width: 15px;
+            background-color: rgba(168, 141, 203, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        /* 标题和描述 */
+        .content-section {
+            position: absolute;
+            left: 54px;
+            top: 587px;
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .title {
+            font-weight: 600;
+            font-size: 20px;
+            line-height: 1.5em;
+            color: #19191B;
+            text-align: center;
+        }
+
+        .description {
+            font-weight: 400;
+            font-size: 14px;
+            line-height: 1.5em;
+            color: #9D9D9D;
+            text-align: center;
+            width: 320px;
+        }
+
+        /* 按钮 */
+        .button {
+            border: none;
+            border-radius: 10px;
+            background-color: #A88DCB;
+            color: #FFFFFF;
+            font-family: 'Poppins';
+            font-weight: 700;
+            font-size: 20px;
+            line-height: 1.5em;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #9a7db8;
+            transform: translateY(-2px);
+        }
+
+        .login-button {
+            position: absolute;
+            left: 117px;
+            top: 709px;
+            width: 190px;
+            height: 55px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .signup-button {
+            position: absolute;
+            left: 117px;
+            top: 784px;
+            width: 190px;
+            height: 55px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 返回按钮 */
+        .back-button {
+            position: absolute;
+            left: 20px;
+            top: 60px;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(168, 141, 203, 0.1);
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: rgba(168, 141, 203, 0.2);
+        }
+
+        .back-arrow {
+            width: 12px;
+            height: 12px;
+            border-left: 2px solid #A88DCB;
+            border-bottom: 2px solid #A88DCB;
+            transform: rotate(45deg);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 428px) {
+            .container {
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+            }
+            
+            .indicator-group {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            
+            .content-section {
+                left: 50%;
+                transform: translateX(-50%);
+                width: calc(100% - 40px);
+            }
+            
+            .description {
+                width: 100%;
+            }
+            
+            .login-button,
+            .signup-button {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            
+            .back-button {
+                left: 20px;
+                top: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 返回按钮 -->
+        <button class="back-button" onclick="goBack()">
+            <div class="back-arrow"></div>
+        </button>
+
+        <!-- 指示器圆点组 -->
+        <div class="indicator-group">
+            <div class="indicator active"></div>
+            <div class="indicator inactive"></div>
+            <div class="indicator inactive"></div>
+        </div>
+
+        <!-- 内容区域 -->
+        <div class="content-section">
+            <div class="title">Read books</div>
+            <div class="description">Follow the procedure to complete the experiment.</div>
+        </div>
+
+        <!-- 按钮 -->
+        <button class="button login-button" onclick="goToNumber()">Login</button>
+        <button class="button signup-button">Sign Up</button>
+    </div>
+
+    <script>
+        function goBack() {
+            // 返回首页
+            window.location.href = 'shouye.html';
+        }
+
+        function goToNumber() {
+            // 跳转到Number页面
+            window.location.href = 'number.html';
+        }
+
+        // 添加页面加载动画
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.querySelector('.container');
+            container.style.opacity = '0';
+            container.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                container.style.transition = 'all 0.6s ease';
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0)';
+            }, 100);
+        });
+
+        // 按钮点击效果
+        document.querySelectorAll('.button').forEach(button => {
+            button.addEventListener('click', function() {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
+            });
+        });
+    </script>
+</body>
+</html>
